@@ -18,7 +18,7 @@ top_frame.grid(row=0, sticky="ew")
 center.grid(row=1, sticky="nsew")
 btm_frame.grid(row=3, sticky="ew")
 btm_frame2.grid(row=4, sticky="ew")
-"""
+
 # create the widgets for the top frame
 model_label = Label(top_frame, text='Model Dimensions')
 width_label = Label(top_frame, text='Width:')
@@ -44,5 +44,5 @@ ctr_right = Frame(center, bg='green', width=100, height=190, padx=3, pady=3)
 ctr_left.grid(row=0, column=0, sticky="ns")
 ctr_mid.grid(row=0, column=1, sticky="nsew")
 ctr_right.grid(row=0, column=2, sticky="ns")
-"""
+
 root.mainloop()

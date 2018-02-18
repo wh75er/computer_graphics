@@ -28,11 +28,11 @@ center.grid(    row=1,
 
 
 # create the center widgets
-center.grid_rowconfigure(0, weight=1)
-center.grid_columnconfigure(1, weight=1)
+center.grid_rowconfigure(1, weight=1)
+center.grid_columnconfigure(0, weight=1)
 
 ctr_left = tk.Frame(    center,
-                        bg="#fff5cb",
+                        bg="red",#bg="#fff5cb",
                         width=400,
                         height=750   )
 
@@ -45,8 +45,10 @@ ctr_left.grid(row=0, column=0, sticky="nsew")
 ctr_right.grid(row=0, column=1, sticky="nsew")
 
 # create left widgets
-#ctr_left.grid_rowconfigure(1, weight=1)
-#ctr_left.grid_columnconfigure(0, weight=1)
+ctr_left.grid_rowconfigure(0, weight=1)
+ctr_left.grid_rowconfigure(1, weight=4)
+ctr_left.grid_columnconfigure(0, weight=1)
+#ctr_left.grid_columnconfigure(1, weight=2)
 
 #create the widgets for the ctr_left frame
 lsBox = tk.Listbox(ctr_left)
@@ -54,9 +56,9 @@ qButton = tk.Button(ctr_left, text="QUIT", fg="red", command=root.destroy)
 entryText = tk.Entry(ctr_left, background = "#ffe9cb")
  
 # layout the widgets in the ctr_left frame
-lsBox.grid(row=0, columnspan=3)
-entryText.grid(row=1, column=0)
-qButton.grid(row=4, column=0, sticky="se")
+lsBox.grid(row=0, column=0, columnspan=3, sticky="wen")
+entryText.grid(row=1, column=0, sticky="wen")
+qButton.grid(row=4, sticky="se")
 
 
 root.mainloop()
