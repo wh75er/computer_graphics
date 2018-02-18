@@ -14,18 +14,16 @@
       <property name="row">0</property>
     </layout>
     <child>
-      <object class="tk.Listbox" id="lsbox">
-        <property name="xscrollcommand">_scroll_x</property>
+      <object class="tk.Listbox" id="lsbox_1">
+        <property name="width">14</property>
         <layout>
           <property name="column">0</property>
-          <property name="columnspan">4</property>
-          <property name="ipadx">40</property>
-          <property name="ipady">50</property>
+          <property name="columnspan">2</property>
+          <property name="ipady">40</property>
           <property name="padx">10</property>
           <property name="pady">10</property>
           <property name="propagate">True</property>
           <property name="row">0</property>
-          <property name="sticky">nw</property>
         </layout>
       </object>
     </child>
@@ -63,6 +61,7 @@
     </child>
     <child>
       <object class="tk.Button" id="remove">
+        <property name="command">remove_on_click_button</property>
         <property name="text" translatable="yes">remove</property>
         <layout>
           <property name="column">1</property>
@@ -77,6 +76,7 @@
     </child>
     <child>
       <object class="tk.Button" id="clean">
+        <property name="command">clean_on_click_button</property>
         <property name="text" translatable="yes">clean</property>
         <layout>
           <property name="column">3</property>
@@ -152,7 +152,7 @@
         <property name="relief">sunken</property>
         <property name="text" translatable="yes">| Welcome! waiting for commands...
 | Add(x y splited by spaces)
-| remove(choice point in lsbox)
+| remove(choice string in lsbox to del it)
 | clean(clean all dots)
 </property>
         <property name="textvariable">string:_debug_text</property>
@@ -168,15 +168,39 @@
       </object>
     </child>
     <child>
-      <object class="tk.Scrollbar" id="lsScroll">
-        <property name="command">_scroll_x</property>
-        <property name="orient">vertical</property>
+      <object class="tk.Listbox" id="lsbox_2">
+        <property name="width">14</property>
         <layout>
-          <property name="column">3</property>
-          <property name="ipady">117</property>
+          <property name="column">2</property>
+          <property name="columnspan">2</property>
+          <property name="ipady">40</property>
+          <property name="pady">10</property>
           <property name="propagate">True</property>
           <property name="row">0</property>
-          <property name="sticky">e</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Radiobutton" id="array_1">
+        <property name="value">1</property>
+        <property name="variable">int:_lsbox_now</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">0</property>
+          <property name="sticky">sw</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Radiobutton" id="array_2">
+        <property name="value">2</property>
+        <property name="variable">int:_lsbox_now</property>
+        <layout>
+          <property name="column">2</property>
+          <property name="propagate">True</property>
+          <property name="row">0</property>
+          <property name="sticky">sw</property>
         </layout>
       </object>
     </child>
