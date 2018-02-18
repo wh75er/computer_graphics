@@ -58,10 +58,16 @@ class Application:
 
     def remove_on_click_button(self):
         self.get_current_lsbox()
-        choice = self.lsbox.curselection()
-        if(choice != ()):
-            print(choice[0])
-        self.debuger_write_info(str(choice))
+        ind = self.lsbox.curselection()
+        if(ind == ()):
+            self.debuger_write_info("Nothing selected")
+            return
+        ind = ind[0]
+        content = self.lsbox.get(first=ind, last=None)
+        self.lsbox.delete(first=ind, last=None)
+        x = content[0]
+        y = content[1]
+        self.debuger_write_info("Dot("+str(x)+", "+str(y)+") had been removed")
 
 
 
