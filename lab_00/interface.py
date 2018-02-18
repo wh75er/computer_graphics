@@ -30,25 +30,46 @@ class Application:
         self.canvas.create_line(0, 300, 700, 300, arrow=tk.LAST, width=2)
         self.canvas.create_text(690, 310, text='X')
 
+        # getting ListBox object
+        self.lsbox = builder.get_object('lsbox', master)
+        self.lsbox.configure(justify=tk.CENTER)
+
+
 
     # debuger info 
     def debuger_write_info(self, s):
         self.var = tk.StringVar()
         self.var = self.builder.get_variable("_debug_text")
         if(self.var.get().count('\n') > 8):
-            self.var.set("> Add(x y splited by spaces)\n> remove(choice point in lsbox)\n> clean(clean all dots)")
+            self.var.set("| Add(x y splited by spaces)\n| remove(choice point in lsbox)\n| clean(clean all dots)")
         self.var.set(self.var.get() + "\n> " + s)
+
+
 
     def add_on_click_button(self):
         # taking string from input
         self.inputStr = tk.StringVar()
         self.inputStr = self.builder.get_variable("_input_text")
+        if(not self.inputStr.get()):
+            return
+
+        node = []
+        x, y = map(float, self.inputStr.get().split())
+        node.append(x)
+        node.append(y)
+        self.lsbox.insert(tk.END, node)
+
         # print that string to output
-        self.debuger_write_info(self.inputStr.get())
+        self.debuger_write_info("Dot("+str(x)+", "+str(y)+") had been added")
+
         self.inputStr.set("")
+
+
 
     def quit_on_button_click(self):
         self.master.quit()
+
+
 
 
 if __name__ == '__main__':
