@@ -81,6 +81,9 @@ class Application:
         if(a1 == () and a2 == ()):
             self.debuger_write_info("nothing to build")
             return
+        dotList = tuple(set(list(a1 + a2)))
+        print(dotList)
+        # making ex build
 
 
 
