@@ -102,6 +102,7 @@
     </child>
     <child>
       <object class="tk.Button" id="build">
+        <property name="command">build_on_click_button</property>
         <property name="text" translatable="yes">build</property>
         <layout>
           <property name="column">0</property>

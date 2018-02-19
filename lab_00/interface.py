@@ -60,21 +60,35 @@ class Application:
         self.get_current_lsbox()
         ind = self.lsbox.curselection()
         if(ind == ()):
-            self.debuger_write_info("Nothing selected")
+            self.debuger_write_info("nothing selected")
             return
         ind = ind[0]
         content = self.lsbox.get(first=ind, last=None)
         self.lsbox.delete(first=ind, last=None)
         x = content[0]
         y = content[1]
-        self.debuger_write_info("Dot("+str(x)+", "+str(y)+") had been removed")
+        self.debuger_write_info("("+str(x)+", "+str(y)+") had been removed")
+
+
+
+    def get_dot_list(self):
+        a1 = self.lsbox_1.get(first=0, last=tk.END)
+        a2 = self.lsbox_2.get(first=0, last=tk.END)
+        return a1, a2
+
+    def build_on_click_button(self):
+        a1, a2 = self.get_dot_list()
+        if(a1 == () and a2 == ()):
+            self.debuger_write_info("nothing to build")
+            return
+
 
 
 
     def clean_on_click_button(self):
         self.lsbox_1.delete(first=0, last=tk.END)
         self.lsbox_2.delete(first=0, last=tk.END)
-        self.debuger_write_info("All dots successfully deleted!")
+        self.debuger_write_info("all dots successfully deleted!")
 
 
 
@@ -92,10 +106,18 @@ class Application:
         x, y = map(float, self.inputStr.get().split())
         node.append(x)
         node.append(y)
+
+        # dont add existed dots
+        a1, a2 = self.get_dot_list()
+        if(self.lsbox == self.lsbox_1 and tuple(node) in a1
+        or self.lsbox == self.lsbox_2 and tuple(node) in a2):
+            self.debuger_write_info("("+str(x)+", "+str(y)+") already exists")
+            return
+
         self.lsbox.insert(tk.END, node)
 
         # print that string to output
-        self.debuger_write_info("Dot("+str(x)+", "+str(y)+") had been added")
+        self.debuger_write_info("("+str(x)+", "+str(y)+") had been added")
 
         self.inputStr.set("")
 
