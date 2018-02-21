@@ -4,6 +4,9 @@ try:
 except:
     import Tkinter as tk  # for python 2
 import pygubu
+import math as m
+
+SCALE = 15
 
 
 class Application:
@@ -26,9 +29,11 @@ class Application:
         self.canvas = builder.get_object('canvas', master)
         # X-Y axis
         self.canvas.create_line(350, 0, 350, 600, arrow=tk.FIRST, width=2)
-        self.canvas.create_text(360, 10, text='Y')
+        self.canvas.create_text(375, 10, text='Y(19)')
         self.canvas.create_line(0, 300, 700, 300, arrow=tk.LAST, width=2)
-        self.canvas.create_text(690, 310, text='X')
+        self.canvas.create_text(675, 310, text='X(22)')
+        
+        self.dotCounter = 0
 
         # getting ListBox object
         self.lsbox_1 = builder.get_object('lsbox_1', master)
@@ -69,30 +74,102 @@ class Application:
         y = content[1]
         self.debuger_write_info("("+str(x)+", "+str(y)+") had been removed")
 
+        # canves working
+        x, y = self.scale_dot(x, y, SCALE)
+        if(x == "err"):
+            self.debuger_write_info("something went wrong")
+        tags = self.canvas.gettags(self.canvas.find_closest(x, y, halo=None, start=None))
+        self.canvas.delete(tags[1])
 
+
+
+    def scale_dot(self, x, y, scale):
+        x = 350 + x*scale
+        y = 300 - y*scale
+        if(x > 700-15 or x < 15 or y < 15 or y > 585):
+            return "err", "err"
+        return x, y
 
     def get_dot_list(self):
         a1 = self.lsbox_1.get(first=0, last=tk.END)
         a2 = self.lsbox_2.get(first=0, last=tk.END)
         return a1, a2
+    
+    def get_triangle(self, a, b, c):
+        if( (a[0]-b[0])*(c[1]-b[1]) == (a[1]-b[1])*(c[0]-b[0]) ):
+            return 0
+        else:
+            return 1
+
+    def get_side_len(self, a, b):
+        return ( (b[0]-a[0])**2 + (b[1]-a[1])**2 )**(1/2)
+    
+    def get_circle_coords(self, a, b, c):
+        center = list(a)
+        la = self.get_side_len(a, b)
+        lb = self.get_side_len(b, c)
+        lc = self.get_side_len(c, a)
+        p = la + lb + lc
+        
+        if(p):
+            center[0] = (lb * a[0] + lc * b[0] + la * c[0])/p
+            center[1] = (lb * a[1] + lc * b[1] + la * c[1])/p
+        return center
+            
 
     def build_on_click_button(self):
         a1, a2 = self.get_dot_list()
         if(a1 == () and a2 == ()):
             self.debuger_write_info("nothing to build")
             return
-        dotList = tuple(set(list(a1 + a2)))
-        print(dotList)
-        # making ex build
 
+        # making ex build
+        """
+        for a in a1:
+            for b in a1:
+                for c in a1:
+                    if(self.get_triangle(a, b, c)):
+                    """
+        a = (10, 7)
+        b = (6, 6)
+        c = (2, 8)
+        k = self.get_circle_coords(a, b, c) # getting incenter coords
+        print(k)
+
+                        
 
 
 
     def clean_on_click_button(self):
         self.lsbox_1.delete(first=0, last=tk.END)
         self.lsbox_2.delete(first=0, last=tk.END)
+        self.canvas.delete("dot")
+        self.dotCounter = 0
         self.debuger_write_info("all dots successfully deleted!")
 
+
+
+    def show_on_click_button(self):                             # WIP
+        self.get_current_lsbox()
+        ind = self.lsbox.curselection()
+        if(ind == ()):
+            self.debuger_write_info("nothing selected")
+            return
+        ind = ind[0]
+        content = self.lsbox.get(first=ind, last=None)
+        x = content[0]
+        y = content[1]
+
+        x, y = self.scale_dot(x, y, SCALE)
+        if(x == "err"):
+            self.debuger_write_info("something went wrong")
+            return
+        
+        dotObj = self.canvas.find_closest(x, y, halo=None, start=None)
+        color = self.canvas.itemcget(dotObj, "fill")
+        self.canvas.itemconfigure(dotObj, fill="red")
+        self.canvas.itemconfigure(dotObj, fill=color)
+        
 
 
     def add_on_click_button(self):
@@ -110,19 +187,30 @@ class Application:
         node.append(x)
         node.append(y)
 
+        x, y = self.scale_dot(x, y, SCALE)
+        if(x == "err"):
+            self.debuger_write_info("("+str(node[0])+", "+str(node[1])+") is unreachable")
+            return
+
         # dont add existed dots
         a1, a2 = self.get_dot_list()
         if(self.lsbox == self.lsbox_1 and tuple(node) in a1
         or self.lsbox == self.lsbox_2 and tuple(node) in a2):
-            self.debuger_write_info("("+str(x)+", "+str(y)+") already exists")
+            self.debuger_write_info("("+str(node[0])+", "+str(node[1])+") already exists")
             return
 
         self.lsbox.insert(tk.END, node)
 
         # print that string to output
-        self.debuger_write_info("("+str(x)+", "+str(y)+") had been added")
-
+        self.debuger_write_info("("+str(node[0])+", "+str(node[1])+") had been added")
         self.inputStr.set("")
+
+        if(tuple(node) in a1 or tuple(node) in a2):
+            return
+
+        self.dotCounter += 1
+        self.canvas.create_text(x+10, y-10, fill="red", text=str(self.dotCounter), tag=("dot", "dot"+str(self.dotCounter)))
+        self.canvas.create_oval(x-3, abs(y-3), x+3, abs(y+3), fill="black", width=0, tag=("dot","dot"+str(self.dotCounter)))
 
 
 
