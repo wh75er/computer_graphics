@@ -1,4 +1,5 @@
-#test.py
+# interface.py
+# for all objects you have to use tags, or program will work incorrectly
 try:
     import tkinter as tk  # for python 3
 except:
@@ -28,10 +29,10 @@ class Application:
 
         self.canvas = builder.get_object('canvas', master)
         # X-Y axis
-        self.canvas.create_line(350, 0, 350, 600, arrow=tk.FIRST, width=2)
-        self.canvas.create_text(375, 10, text='Y(19)')
-        self.canvas.create_line(0, 300, 700, 300, arrow=tk.LAST, width=2)
-        self.canvas.create_text(675, 310, text='X(22)')
+        self.canvas.create_line(350, 0, 350, 600, arrow=tk.FIRST, width=2, tag="axis")
+        self.canvas.create_text(375, 10, text='Y(19)', tag="axit")
+        self.canvas.create_line(0, 300, 700, 300, arrow=tk.LAST, width=2, tag="axit")
+        self.canvas.create_text(675, 310, text='X(22)', tag="axit")
         
         self.dotCounter = 0
 
@@ -40,6 +41,7 @@ class Application:
         self.lsbox_1.configure(justify=tk.CENTER)
         self.lsbox_2 = builder.get_object('lsbox_2', master)
         self.lsbox_2.configure(justify=tk.CENTER)
+
 
 
 
@@ -78,10 +80,28 @@ class Application:
         x, y = self.scale_dot(x, y, SCALE)
         if(x == "err"):
             self.debuger_write_info("something went wrong")
-        tags = self.canvas.gettags(self.canvas.find_closest(x, y, halo=None, start=None))
+
+        tags = self.get_dot_tags(x, y)
+        if(not tags):
+            raise Exception("Tags suppose to exist")
+
+        a1, a2 = self.get_dot_list()
+        if(tuple(content) in a1 or tuple(content) in a2):
+            return
+
         self.canvas.delete(tags[1])
 
 
+
+    def get_dot_tags(self, x, y):
+        dotObjs = self.canvas.find_overlapping(x, y, x, y)
+        tags = []
+        for i in dotObjs:
+            tags = self.canvas.gettags(i)
+            if(tags[0] == "dot"):
+                break
+
+        return tags
 
     def scale_dot(self, x, y, scale):
         x = 350 + x*scale
@@ -89,6 +109,12 @@ class Application:
         if(x > 700-15 or x < 15 or y < 15 or y > 585):
             return "err", "err"
         return x, y
+
+    def get_scale_dot(self, dot, scale):
+        dot[0], dot[1] = self.scale_dot(dot[0], dot[1], scale)
+        if(dot[0] == "err"):
+            raise ValueError("There's error with scaling dot in get_scale_dot function")
+        return dot
 
     def get_dot_list(self):
         a1 = self.lsbox_1.get(first=0, last=tk.END)
@@ -115,41 +141,92 @@ class Application:
             center[0] = (lb * a[0] + lc * b[0] + la * c[0])/p
             center[1] = (lb * a[1] + lc * b[1] + la * c[1])/p
         return center
-            
 
-    def build_on_click_button(self):
+    def build_on_canvas(self, dotLs_1, dotLs_2, crcl_1, crcl_2):
+        x1, x2, x3 = dotLs_1[0], dotLs_1[1], dotLs_1[2]
+        z1, z2, z3 = dotLs_2[0], dotLs_2[1], dotLs_2[2]
+
+        # scaling values
+        x1 = self.get_scale_dot(x1, SCALE)
+        x2 = self.get_scale_dot(x2, SCALE)
+        x3 = self.get_scale_dot(x3, SCALE)
+        z1 = self.get_scale_dot(z1, SCALE)
+        z2 = self.get_scale_dot(z2, SCALE)
+        z3 = self.get_scale_dot(z3, SCALE)
+        crcl_1 = self.get_scale_dot(crcl_1, SCALE)
+        crcl_2 = self.get_scale_dot(crcl_2, SCALE)
+        
+        # build triangles
+        self.canvas.create_line(x1[0], x1[1], x2[0], x2[1], width=2, fill="red", tag="ex")
+        self.canvas.create_line(x2[0], x2[1], x3[0], x3[1], width=2, fill="red", tag="ex")
+        self.canvas.create_line(x3[0], x3[1], x1[0], x1[1], width=2, fill="red", tag="ex")
+
+        self.canvas.create_line(z1[0], z1[1], z2[0], z2[1], width=2, fill="red", tag="ex")
+        self.canvas.create_line(z2[0], z2[1], z3[0], z3[1], width=2, fill="red", tag="ex")
+        self.canvas.create_line(z3[0], z3[1], z1[0], z1[1], width=2, fill="red", tag="ex")
+
+        # build line between triangles
+        self.canvas.create_line(crcl_1[0], crcl_1[1], crcl_2[0], crcl_2[1], width=1, fill="red", tag="ex")
+
+
+    def build_on_click_button(self):                        #WIP
+        self.canvas.delete("ex")
+        min_angle = 90
+        triangle_1 = [[], [], []]
+        triangle_2 = [[], [], []]
+        crcl = [[], []]
         a1, a2 = self.get_dot_list()
         if(a1 == () and a2 == ()):
             self.debuger_write_info("nothing to build")
             return
 
         # making ex build
-        """
-        for a in a1:
-            for b in a1:
-                for c in a1:
-                    if(self.get_triangle(a, b, c)):
-                    """
-        a = (10, 7)
-        b = (6, 6)
-        c = (2, 8)
-        k = self.get_circle_coords(a, b, c) # getting incenter coords
-        print(k)
+        for i in range(len(a1)):
+            for j in range(i, len(a1)):
+                for k in range(j, len(a1)):
+                    if(self.get_triangle(a1[i], a1[j], a1[k])):
 
-                        
-
+                        for q in range(len(a2)):
+                            for w in range(q, len(a2)):
+                                for e in range(w, len(a2)):
+                                    if(self.get_triangle(a2[q], a2[w], a2[e])):
+                                        circle_1 = self.get_circle_coords(a1[i], a1[j], a1[k])
+                                        circle_2 = self.get_circle_coords(a2[q], a2[w], a2[e])
+                                        if(circle_1[0] == circle_2[0]):
+                                            min_angle = 0
+                                            triangle_1[0], triangle_1[1], triangle_1[2] = list(a1[i]), list(a1[j]), list(a1[k])
+                                            triangle_2[0], triangle_2[1], triangle_2[2] = list(a2[q]), list(a2[w]), list(a2[e])
+                                            crcl[0], crcl[1] = circle_1, circle_2
+                                            self.build_on_canvas(triangle_1, triangle_2, circle_1, circle_2)
+                                            return
+                                        elif(circle_1[1] == circle_2[1] and min_angle == 90):
+                                            triangle_1[0], triangle_1[1], triangle_1[2] = list(a1[i]), list(a1[j]), list(a1[k])
+                                            triangle_2[0], triangle_2[1], triangle_2[2] = list(a2[q]), list(a2[w]), list(a2[e])
+                                            crcl[0], crcl[1] = circle_1, circle_2
+                                        else:
+                                            a = abs(circle_1[0] - circle_2[0])  # x side of triangle
+                                            b = abs(circle_1[1] - circle_2[1])  # y side of triangle
+                                            angle = m.degrees(m.atan(b/a))                 # angle between a and c sides of triangle
+                                            if(angle < min_angle):
+                                                min_angle = angle
+                                                triangle_1[0], triangle_1[1], triangle_1[2] = list(a1[i]), list(a1[j]), list(a1[k])
+                                                triangle_2[0], triangle_2[1], triangle_2[2] = list(a2[q]), list(a2[w]), list(a2[e])
+                                                crcl[0], crcl[1] = circle_1, circle_2
+        if(triangle_1 != [[], [], []]):
+            self.build_on_canvas(triangle_1, triangle_2, crcl[0], crcl[1])
 
 
     def clean_on_click_button(self):
         self.lsbox_1.delete(first=0, last=tk.END)
         self.lsbox_2.delete(first=0, last=tk.END)
+        self.canvas.delete("ex")
         self.canvas.delete("dot")
         self.dotCounter = 0
-        self.debuger_write_info("all dots successfully deleted!")
+        self.debuger_write_info("canvas  successfully cleared!")
 
 
 
-    def show_on_click_button(self):                             # WIP
+    def show_on_click_button(self):
         self.get_current_lsbox()
         ind = self.lsbox.curselection()
         if(ind == ()):
@@ -165,10 +242,15 @@ class Application:
             self.debuger_write_info("something went wrong")
             return
         
-        dotObj = self.canvas.find_closest(x, y, halo=None, start=None)
-        color = self.canvas.itemcget(dotObj, "fill")
-        self.canvas.itemconfigure(dotObj, fill="red")
-        self.canvas.itemconfigure(dotObj, fill=color)
+        # get object
+        tags = self.get_dot_tags(x, y)
+        if(not tags):
+            raise Exception("Tags suppose to exist")
+
+        # have to get text object, to get number of dot
+        objs = self.canvas.find_withtag(tags[1])
+        text = self.canvas.itemcget(objs[0], "text")
+        self.debuger_write_info( "dot("+str(content[0])+", "+str(content[1])+") # "+text )
         
 
 
