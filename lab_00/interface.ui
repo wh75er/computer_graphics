@@ -155,7 +155,7 @@
         <property name="text" translatable="yes">| Welcome! waiting for commands...
 | Add(x y splited by spaces)
 | remove(choice string in lsbox to del it)
-| clean(clean all dots)
+| clean(clean canvas)
 </property>
         <property name="textvariable">string:_debug_text</property>
         <property name="width">26</property>

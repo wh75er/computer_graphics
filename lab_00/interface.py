@@ -58,7 +58,7 @@ class Application:
         self.var = tk.StringVar()
         self.var = self.builder.get_variable("_debug_text")
         if(self.var.get().count('\n') > 8):
-            self.var.set("| Add(x y splited by spaces)\n| remove(choice string in lsbox to del it)\n| clean(clean all dots)")
+            self.var.set("| Add(x y splited by spaces)\n| remove(choice string in lsbox to del it)\n| clean(clean canvas)")
         self.var.set(self.var.get() + "\n> " + s)
 
 
