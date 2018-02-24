@@ -28,6 +28,7 @@ class Application:
         
 
         self.canvas = builder.get_object('canvas', master)
+        self.canvas.bind('<Button-1>', self.mouse_get_dot)
         # X-Y axis
         self.canvas.create_line(350, 0, 350, 600, arrow=tk.FIRST, width=2, tag="axis")
         self.canvas.create_text(375, 10, text='Y(19)', tag="axit")
@@ -44,6 +45,23 @@ class Application:
 
 
 
+    def mouse_get_dot(self, event):
+        x, y = event.x, event.y
+        
+        # get object
+        tags = self.get_dot_tags(x, y)
+        if(not tags):
+            return
+
+        # have to get text object, to get number of dot
+        objs = self.canvas.find_withtag(tags[1])
+        coords = self.canvas.coords(objs[0])
+        x, y = coords[0], coords[1]
+        x -= 10
+        y = abs(y+10)
+        x, y = self.unscale_dot(x, y, SCALE)
+        text = self.canvas.itemcget(objs[0], "text")
+        self.debuger_write_info( "dot("+str(x)+", "+str(y)+") # "+text )
 
     def get_current_lsbox(self):
         self.lsbox_input = tk.IntVar()
@@ -95,13 +113,20 @@ class Application:
 
     def get_dot_tags(self, x, y):
         dotObjs = self.canvas.find_overlapping(x, y, x, y)
+        tags_check = []
         tags = []
         for i in dotObjs:
-            tags = self.canvas.gettags(i)
-            if(tags[0] == "dot"):
+            tags_check = self.canvas.gettags(i)
+            if(tags_check[0] == "dot"):
+                tags = tags_check
                 break
 
         return tags
+
+    def unscale_dot(self, x, y, scale):
+        x = (-1)*(350 - x)/scale
+        y = (300 - y)/scale
+        return x, y
 
     def scale_dot(self, x, y, scale):
         x = 350 + x*scale
@@ -214,6 +239,8 @@ class Application:
                                                 crcl[0], crcl[1] = circle_1, circle_2
         if(triangle_1 != [[], [], []]):
             self.build_on_canvas(triangle_1, triangle_2, crcl[0], crcl[1])
+        else:
+            self.debuger_write_info("triangles dont exist")
 
 
     def clean_on_click_button(self):
