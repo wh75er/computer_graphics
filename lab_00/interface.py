@@ -7,7 +7,7 @@ except:
 import pygubu
 import math as m
 
-SCALE = 15
+#SCALE = 15
 
 
 class Application:
@@ -31,9 +31,9 @@ class Application:
         self.canvas.bind('<Button-1>', self.mouse_get_dot)
         # X-Y axis
         self.canvas.create_line(350, 0, 350, 600, arrow=tk.FIRST, width=2, tag="axis")
-        self.canvas.create_text(375, 10, text='Y(19)', tag="axit")
-        self.canvas.create_line(0, 300, 700, 300, arrow=tk.LAST, width=2, tag="axit")
-        self.canvas.create_text(675, 310, text='X(22)', tag="axit")
+        self.canvas.create_text(375, 10, text='Y', tag="axis")
+        self.canvas.create_line(0, 300, 700, 300, arrow=tk.LAST, width=2, tag="axis")
+        self.canvas.create_text(675, 310, text='X', tag="axis")
         
         self.dotCounter = 0
 
@@ -42,6 +42,8 @@ class Application:
         self.lsbox_1.configure(justify=tk.CENTER)
         self.lsbox_2 = builder.get_object('lsbox_2', master)
         self.lsbox_2.configure(justify=tk.CENTER)
+
+        self.SCALE = 1
 
 
 
@@ -59,7 +61,7 @@ class Application:
         x, y = coords[0], coords[1]
         x -= 10
         y = abs(y+10)
-        x, y = self.unscale_dot(x, y, SCALE)
+        x, y = self.unscale_dot(x, y, self.SCALE)
         text = self.canvas.itemcget(objs[0], "text")
         self.debuger_write_info( "dot("+str(x)+", "+str(y)+") # "+text )
 
@@ -94,20 +96,20 @@ class Application:
         y = content[1]
         self.debuger_write_info("("+str(x)+", "+str(y)+") had been removed")
 
-        # canves working
-        x, y = self.scale_dot(x, y, SCALE)
-        if(x == "err"):
-            self.debuger_write_info("something went wrong")
+        # canvas working
+        #x, y = self.scale_dot(x, y, self.SCALE)
+        #if(x == "err"):
+        #    self.debuger_write_info("something went wrong")
 
-        tags = self.get_dot_tags(x, y)
-        if(not tags):
-            raise Exception("Tags suppose to exist")
+        #tags = self.get_dot_tags(x, y)
+        #if(not tags):
+        #    raise Exception("Tags suppose to exist")
 
-        a1, a2 = self.get_dot_list()
-        if(tuple(content) in a1 or tuple(content) in a2):
-            return
+        #a1, a2 = self.get_dot_list()
+        #if(tuple(content) in a1 or tuple(content) in a2):
+        #    return
 
-        self.canvas.delete(tags[1])
+        #self.canvas.delete(tags[1])
 
 
 
@@ -167,19 +169,74 @@ class Application:
             center[1] = (lb * a[1] + lc * b[1] + la * c[1])/p
         return center
 
+    def get_scale(self, a1, a2):
+        minX = [700, 0]
+        maxX = [-700, 0]
+        minY = [0, 600]
+        maxY = [0, -600]
+
+        for i in a1:
+            if(i[0] < minX[0]):
+                minX[0] = i[0]
+                minX[1] = i[1]
+            if(i[0] > maxX[0]):
+                maxX[0] = i[0]
+                maxX[1] = i[1]
+            if(i[1] < minY[1]):
+                minY[0] = i[0]
+                minY[1] = i[1]
+            if(i[1] > maxY[1]):
+                maxY[0] = i[0]
+                maxY[1] = i[1]
+        for i in a2:
+            if(i[0] < minX[0]):
+                minX[0] = i[0]
+                minX[1] = i[1]
+            if(i[0] > maxX[0]):
+                maxX[0] = i[0]
+                maxX[1] = i[1]
+            if(i[1] < minY[1]):
+                minY[0] = i[0]
+                minY[1] = i[1]
+            if(i[1] > maxY[1]):
+                maxY[0] = i[0]
+                maxY[1] = i[1]
+        self.SCALE = 1
+
+        d1x, d2x, d3x, d4x = 0, 0, 0, 0
+        while(d1x != "err" and d2x != "err" and d3x != "err" and d4x != "err"):
+            self.SCALE += 0.2
+            d1x, d1y = self.scale_dot(minX[0], minX[1], self.SCALE)
+            d2x, d2y = self.scale_dot(maxX[0], maxX[1], self.SCALE)
+            d3x, d3y = self.scale_dot(minY[0], minY[1], self.SCALE)
+            d4x, d4y = self.scale_dot(maxY[0], maxY[1], self.SCALE)
+
+        self.SCALE -= 0.2
+     
+
+    def build_dots(self, a1, a2):                                           # We have to get scale before use it(default self.scale is 1)
+        dotList = tuple(set(list(a1+a2)))
+        for i in dotList:
+            x, y = self.get_scale_dot(list(i), self.SCALE)
+            self.dotCounter += 1
+            self.canvas.create_text(x+10, y-10, fill="red", text=str(self.dotCounter), tag=("dot", "dot"+str(self.dotCounter)))
+            self.canvas.create_oval(x-3, abs(y-3), x+3, abs(y+3), fill="black", width=0, tag=("dot","dot"+str(self.dotCounter)))
+        return
+        
+
     def build_on_canvas(self, dotLs_1, dotLs_2, crcl_1, crcl_2):
         x1, x2, x3 = dotLs_1[0], dotLs_1[1], dotLs_1[2]
         z1, z2, z3 = dotLs_2[0], dotLs_2[1], dotLs_2[2]
 
         # scaling values
-        x1 = self.get_scale_dot(x1, SCALE)
-        x2 = self.get_scale_dot(x2, SCALE)
-        x3 = self.get_scale_dot(x3, SCALE)
-        z1 = self.get_scale_dot(z1, SCALE)
-        z2 = self.get_scale_dot(z2, SCALE)
-        z3 = self.get_scale_dot(z3, SCALE)
-        crcl_1 = self.get_scale_dot(crcl_1, SCALE)
-        crcl_2 = self.get_scale_dot(crcl_2, SCALE)
+        x1 = self.get_scale_dot(x1, self.SCALE)
+        x2 = self.get_scale_dot(x2, self.SCALE)
+        x3 = self.get_scale_dot(x3, self.SCALE)
+        z1 = self.get_scale_dot(z1, self.SCALE)
+        z2 = self.get_scale_dot(z2, self.SCALE)
+        z3 = self.get_scale_dot(z3, self.SCALE)
+        crcl_1 = self.get_scale_dot(crcl_1, self.SCALE)
+        crcl_2 = self.get_scale_dot(crcl_2, self.SCALE)
         
         # build triangles
         self.canvas.create_line(x1[0], x1[1], x2[0], x2[1], width=2, fill="red", tag="ex")
@@ -195,7 +252,12 @@ class Application:
 
 
     def build_on_click_button(self):                        #WIP
+        # init
         self.canvas.delete("ex")
+        self.canvas.delete("dot")
+        self.dotCounter = 0
+        self.SCALE = 1
+
         min_angle = 90
         triangle_1 = [[], [], []]
         triangle_2 = [[], [], []]
@@ -204,6 +266,7 @@ class Application:
         if(a1 == () and a2 == ()):
             self.debuger_write_info("nothing to build")
             return
+        self.get_scale(a1, a2)
 
         # making ex build
         for i in range(len(a1)):
@@ -222,7 +285,8 @@ class Application:
                                             triangle_1[0], triangle_1[1], triangle_1[2] = list(a1[i]), list(a1[j]), list(a1[k])
                                             triangle_2[0], triangle_2[1], triangle_2[2] = list(a2[q]), list(a2[w]), list(a2[e])
                                             crcl[0], crcl[1] = circle_1, circle_2
-                                            self.debuger_write_info("triangles senters: " + "(" + "{:.1f}".format(crcl[0][0]) +", "+ "{:.1f}".format(crcl[0][1]) +  ")\n" + "\t\t(" + "{:.1f}".format(crcl[1][0]) + ", " + "{:.1f}".format(crcl[1][1]) + ")\n" +  "  angle: \t{:.1f}".format(min_angle))
+                                            self.debuger_write_info("triangles centers: " + "(" + "{:.1f}".format(crcl[0][0]) +", "+ "{:.1f}".format(crcl[0][1]) +  ")\n" + "\t\t(" + "{:.1f}".format(crcl[1][0]) + ", " + "{:.1f}".format(crcl[1][1]) + ")\n" +  "   angle: \t\t{:.1f}".format(min_angle))
+                                            self.build_dots(a1, a2)
                                             self.build_on_canvas(triangle_1, triangle_2, circle_1, circle_2)
                                             return
                                         elif(circle_1[1] == circle_2[1] and min_angle == 90):
@@ -239,7 +303,8 @@ class Application:
                                                 triangle_2[0], triangle_2[1], triangle_2[2] = list(a2[q]), list(a2[w]), list(a2[e])
                                                 crcl[0], crcl[1] = circle_1, circle_2
         if(triangle_1 != [[], [], []]):
-            self.debuger_write_info("triangles senters: " + "(" + "{:.1f}".format(crcl[0][0]) +", "+ "{:.1f}".format(crcl[0][1]) +  ")\n" + "\t\t(" + "{:.1f}".format(crcl[1][0]) + ", " + "{:.1f}".format(crcl[1][1]) + ")\n" +  "  angle: \t{:.1f}".format(min_angle))
+            self.debuger_write_info("triangles centers: " + "(" + "{:.1f}".format(crcl[0][0]) +", "+ "{:.1f}".format(crcl[0][1]) +  ")\n" + "\t\t(" + "{:.1f}".format(crcl[1][0]) + ", " + "{:.1f}".format(crcl[1][1]) + ")\n" +  "   angle: \t\t{:.1f}".format(min_angle))
+            self.build_dots(a1, a2)
             self.build_on_canvas(triangle_1, triangle_2, crcl[0], crcl[1])
         else:
             self.debuger_write_info("triangles dont exist")
@@ -251,6 +316,7 @@ class Application:
         self.canvas.delete("ex")
         self.canvas.delete("dot")
         self.dotCounter = 0
+        self.SCALE = 1
         self.debuger_write_info("canvas  successfully cleared!")
 
 
@@ -266,7 +332,7 @@ class Application:
         x = content[0]
         y = content[1]
 
-        x, y = self.scale_dot(x, y, SCALE)
+        x, y = self.scale_dot(x, y, self.SCALE)
         if(x == "err"):
             self.debuger_write_info("something went wrong")
             return
@@ -298,10 +364,13 @@ class Application:
         node.append(x)
         node.append(y)
 
-        x, y = self.scale_dot(x, y, SCALE)
-        if(x == "err"):
+        #x, y = self.scale_dot(x, y, self.SCALE)
+        #if(x == "err"):
+        #    self.debuger_write_info("("+str(node[0])+", "+str(node[1])+") is unreachable")
+        #    return
+        if(abs(x) > 335 or abs(y) > 285):
             self.debuger_write_info("("+str(node[0])+", "+str(node[1])+") is unreachable")
-            return
+            return    
 
         # dont add existed dots
         a1, a2 = self.get_dot_list()
@@ -316,12 +385,12 @@ class Application:
         self.debuger_write_info("("+str(node[0])+", "+str(node[1])+") had been added")
         self.inputStr.set("")
 
-        if(tuple(node) in a1 or tuple(node) in a2):
-            return
+        #if(tuple(node) in a1 or tuple(node) in a2):
+        #    return
 
-        self.dotCounter += 1
-        self.canvas.create_text(x+10, y-10, fill="red", text=str(self.dotCounter), tag=("dot", "dot"+str(self.dotCounter)))
-        self.canvas.create_oval(x-3, abs(y-3), x+3, abs(y+3), fill="black", width=0, tag=("dot","dot"+str(self.dotCounter)))
+        #self.dotCounter += 1
+        #self.canvas.create_text(x+10, y-10, fill="red", text=str(self.dotCounter), tag=("dot", "dot"+str(self.dotCounter)))
+        #self.canvas.create_oval(x-3, abs(y-3), x+3, abs(y+3), fill="black", width=0, tag=("dot","dot"+str(self.dotCounter)))
 
 
 
