@@ -222,6 +222,7 @@ class Application:
                                             triangle_1[0], triangle_1[1], triangle_1[2] = list(a1[i]), list(a1[j]), list(a1[k])
                                             triangle_2[0], triangle_2[1], triangle_2[2] = list(a2[q]), list(a2[w]), list(a2[e])
                                             crcl[0], crcl[1] = circle_1, circle_2
+                                            self.debuger_write_info("triangles senters: " + "(" + "{:.1f}".format(crcl[0][0]) +", "+ "{:.1f}".format(crcl[0][1]) +  ")\n" + "\t\t(" + "{:.1f}".format(crcl[1][0]) + ", " + "{:.1f}".format(crcl[1][1]) + ")\n" +  "  angle: \t{:.1f}".format(min_angle))
                                             self.build_on_canvas(triangle_1, triangle_2, circle_1, circle_2)
                                             return
                                         elif(circle_1[1] == circle_2[1] and min_angle == 90):
@@ -238,6 +239,7 @@ class Application:
                                                 triangle_2[0], triangle_2[1], triangle_2[2] = list(a2[q]), list(a2[w]), list(a2[e])
                                                 crcl[0], crcl[1] = circle_1, circle_2
         if(triangle_1 != [[], [], []]):
+            self.debuger_write_info("triangles senters: " + "(" + "{:.1f}".format(crcl[0][0]) +", "+ "{:.1f}".format(crcl[0][1]) +  ")\n" + "\t\t(" + "{:.1f}".format(crcl[1][0]) + ", " + "{:.1f}".format(crcl[1][1]) + ")\n" +  "  angle: \t{:.1f}".format(min_angle))
             self.build_on_canvas(triangle_1, triangle_2, crcl[0], crcl[1])
         else:
             self.debuger_write_info("triangles dont exist")
