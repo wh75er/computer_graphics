@@ -63,7 +63,7 @@ class Application:
         y = abs(y+10)
         x, y = self.unscale_dot(x, y, self.SCALE)
         text = self.canvas.itemcget(objs[0], "text")
-        self.debuger_write_info( "dot("+str(x)+", "+str(y)+") # "+text )
+        self.debuger_write_info( "dot({:.1f}".format(x)+", {:.1f}".format(y)+") # "+text )
 
     def get_current_lsbox(self):
         self.lsbox_input = tk.IntVar()
