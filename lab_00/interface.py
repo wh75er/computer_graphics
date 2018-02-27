@@ -250,6 +250,12 @@ class Application:
         # build line between triangles
         self.canvas.create_line(crcl_1[0], crcl_1[1], crcl_2[0], crcl_2[1], width=1, fill="red", tag="ex")
 
+        # build median
+        self.canvas.create_line(z1[0], z1[1], crcl_2[0], crcl_2[1], width=0.5, fill="orange", tag="ex", dash=(3,))
+        self.canvas.create_line(z2[0], z2[1], crcl_2[0], crcl_2[1], width=0.5, fill="orange", tag="ex", dash=(3,))
+        self.canvas.create_line(x1[0], x1[1], crcl_1[0], crcl_1[1], width=0.5, fill="orange", tag="ex", dash=(3,))
+        self.canvas.create_line(x2[0], x2[1], crcl_1[0], crcl_1[1], width=0.5, fill="orange", tag="ex", dash=(3,))
+
 
     def build_on_click_button(self):                        #WIP
         # init
