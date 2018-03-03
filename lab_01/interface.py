@@ -29,25 +29,21 @@ class Application:
         self.canvas = builder.get_object('canvas', master)
 
         # draw center of canvas
-        self.canvas.create_oval(300-2, 300-2, 300+2, 300+2, width=2, fill="black")
+        canterObj = self.canvas.create_oval(300-2, 300-2, 300+2, 300+2, width=2, fill="black", tag="center")
 
         # draw main figure
-        self.dotLs = []
+        self.dotLs = []                                         # original dots
         self.calculate_dots(-0.7, 0.7)
+        self.modDots = []                                       # modificated dots
+        for i in range(len(self.dotLs)):
+            self.modDots.append(self.dotLs[i][:])
         self.draw_im()
+
+
 
 
     def scale(self, x, y, kx, ky, m1, m2):
         return kx * x + (1 - kx)*m1, ky * y + (1 - ky)*m2
-
-    def draw_im(self):
-        for i in range(len(self.dotLs)):
-            if(i < len(self.dotLs) - 1):
-                x1, y1 = self.scale(self.dotLs[i][0], self.dotLs[i][1], 400, 400, 0, 0)
-                x2, y2 = self.scale(self.dotLs[i+1][0], self.dotLs[i+1][1], 400, 400, 0, 0)
-                self.canvas.create_line(300 + x1, 300 + y1*(-1), 300 + x2, 300 + y2*(-1))
-        x1, y1 = self.scale(self.dotLs[len(self.dotLs)-1][0], self.dotLs[len(self.dotLs)-1][1], 400, 400, 0, 0)
-        self.canvas.create_line(300 + x1, 300 + y1*(-1), 300 + x2, 300 + y2*(-1))
 
     def f1(self, x):
         return x**2
@@ -55,6 +51,24 @@ class Application:
         return m.exp(x)
     def f3(self, x):
         return m.exp(-x)
+
+
+
+
+    def quit_on_button_click(self):
+        self.master.quit()
+
+
+
+    def draw_im(self):
+        print(self.modDots)
+        print(self.dotLs)
+        for i in range(len(self.dotLs)):
+            if(i < len(self.dotLs) - 1):
+                self.modDots[i][0], self.modDots[i][1] = self.scale(self.modDots[i][0], self.modDots[i][1], 300, 300, 0, 0)
+                x2, y2 = self.scale(self.modDots[i+1][0], self.modDots[i+1][1], 300, 300, 0, 0)
+                self.canvas.create_line(300 + self.modDots[i][0], 300 + self.modDots[i][1]*(-1), 300 + x2, 300 + y2*(-1))
+
 
     def calculate_dots(self, left_b, right_b):
         i = left_b
@@ -84,10 +98,6 @@ class Application:
             i -= 0.06
         self.dotLs.append([-0.7, 0.49])
 
-
-
-    def quit_on_button_click(self):
-        self.master.quit()
 
 
 
