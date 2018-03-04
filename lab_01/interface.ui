@@ -78,6 +78,7 @@
     </child>
     <child>
       <object class="tk.Button" id="scale">
+        <property name="command">scale_on_button_click</property>
         <property name="text" translatable="yes">scale</property>
         <layout>
           <property name="column">0</property>
@@ -104,6 +105,7 @@
     </child>
     <child>
       <object class="tk.Entry" id="input">
+        <property name="textvariable">string:_input_text</property>
         <layout>
           <property name="column">0</property>
           <property name="columnspan">4</property>
@@ -117,7 +119,8 @@
     </child>
     <child>
       <object class="tk.Button" id="prev">
-        <property name="text" translatable="yes">previouse step</property>
+        <property name="relief">ridge</property>
+        <property name="text" translatable="yes">back</property>
         <layout>
           <property name="column">0</property>
           <property name="columnspan">4</property>
