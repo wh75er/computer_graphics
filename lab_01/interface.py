@@ -40,15 +40,14 @@ class Application:
 
 
         # draw main figure
-        self.dotLs = []                                         # original dots
-        self.calculate_dots(-0.7, 0.7)
-        self.modDots = []                                       # modificated dots
-        for i in range(len(self.dotLs)):
-            self.modDots.append(self.dotLs[i][:])
-        self.init_img()
+        self.f1_list = []                                         # original dots
+        self.f2_list = []
+        self.f3_list = []
+        self.calculate_dots(-1, 1)
+        self.init_img(self.f1_list)
+        self.init_img(self.f2_list)
+        self.init_img(self.f3_list)
 
-        # memory steps
-        self.memoryL = []
 
 
 
@@ -73,7 +72,7 @@ class Application:
         kx, ky, m1, m2 = map(float, self.inputStr.get().split())
         for i in range(len(a)):
             a[i][0], a[i][1] = self.scale(a[i][0], a[i][1], kx, ky, m1, m2)
-        self.draw_img()
+#        self.draw_img()
                 
 
     def quit_on_button_click(self):
@@ -85,11 +84,11 @@ class Application:
             self.var.set("| Welcome! waiting for commands...\n")
         self.var.set(self.var.get() + "\n> " + s)
 
-    def draw_img(self):
+    def draw_img(self, a):
         self.canvas.delete("img")
-        for i in range(len(self.modDots)):
-            if(i < len(self.modDots)-1):
-                self.canvas.create_line(300 + self.modDots[i][0], 300 + self.modDots[i][1]*(-1), 300 + self.modDots[i+1][0], 300 + self.modDots[i+1][1]*(-1), tag="img")
+        for i in range(len(a)):
+            if(i < len(a)-1):
+                self.canvas.create_line(300 + a[i][0], 300 + a[i][1]*(-1), 300 + a[i+1][0], 300 + a[i+1][1]*(-1), tag="img")
 
     def calculate_dots(self, left_b, right_b):
         i = left_b
@@ -99,33 +98,38 @@ class Application:
                 break
             node[0] = i
             node[1] = self.f1(i)
-            self.dotLs.append([node[0], node[1]])
+            self.f1_list.append([node[0], node[1]])
             i += 0.06
-        i = right_b
-        while(i > -0.06):
-            if(i < 0.0):
-                break
-            node[0] = i
-            node[1] = self.f3(i)
-            self.dotLs.append([node[0], node[1]])
-            i -= 0.06
-        i = 0
-        while(i > left_b - 0.06):
-            if(i < left_b):
+        self.f1_list.append([right_b, self.f1(right_b)])
+        i = left_b
+        node = [[], []]
+        while(i < right_b + 0.06):
+            if(i > right_b):
                 break
             node[0] = i
             node[1] = self.f2(i)
-            self.dotLs.append([node[0], node[1]])
-            i -= 0.06
-        self.dotLs.append([-0.7, 0.49])
+            self.f2_list.append([node[0], node[1]])
+            i += 0.06
+        self.f2_list.append([right_b, self.f2(right_b)])
+        i = left_b
+        node = [[], []]
+        while(i < right_b + 0.06):
+            if(i > right_b):
+                break
+            node[0] = i
+            node[1] = self.f3(i)
+            self.f3_list.append([node[0], node[1]])
+            i += 0.06
+        self.f3_list.append([right_b, self.f3(right_b)])
 
-    def init_img(self):
-        for i in range(len(self.modDots)):
-            if(i < len(self.modDots) - 1):
-                self.modDots[i][0], self.modDots[i][1] = self.scale(self.modDots[i][0], self.modDots[i][1], 300, 300, 0, 0)
-                x2, y2 = self.scale(self.modDots[i+1][0], self.modDots[i+1][1], 300, 300, 0, 0)
-                self.canvas.create_line(300 + self.modDots[i][0], 300 + self.modDots[i][1]*(-1), 300 + x2, 300 + y2*(-1), tag="img") 
-        self.modDots[i][0], self.modDots[i][1] = x2, y2
+
+    def init_img(self, a):
+        for i in range(len(a)):
+            if(i < len(a) - 1):
+                a[i][0], a[i][1] = self.scale(a[i][0], a[i][1], 250, 250, 0, 0)
+                x2, y2 = self.scale(a[i+1][0], a[i+1][1], 250, 250, 0, 0)
+                self.canvas.create_line(300 + a[i][0], 300 + a[i][1]*(-1), 300 + x2, 300 + y2*(-1), tag="img") 
+        a[i][0], a[i][1] = x2, y2
 
 
 
