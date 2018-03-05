@@ -39,14 +39,18 @@ class Application:
         self.inputStr = self.builder.get_variable("_input_text")
 
 
-        # draw main figure
-        self.f1_list = []                                         # original dots
+        # calculate figure coordinates
+        self.f1_list = []
         self.f2_list = []
         self.f3_list = []
         self.calculate_dots(-1, 1)
-        self.init_img(self.f1_list)
-        self.init_img(self.f2_list)
-        self.init_img(self.f3_list)
+
+        # remember dot list, which we can modify
+        self.dot_list = [[], [], []]
+        self.create_list_with_dots()
+        # initilize image and draw it on canvas
+        for i in self.dot_list:
+            self.init_img(i)
 
 
 
@@ -68,15 +72,17 @@ class Application:
         if(not self.inputStr.get()):
             return
         
-        a = self.modDots
         kx, ky, m1, m2 = map(float, self.inputStr.get().split())
+        a = self.dot_list
         for i in range(len(a)):
-            a[i][0], a[i][1] = self.scale(a[i][0], a[i][1], kx, ky, m1, m2)
-#        self.draw_img()
+            for j in range(len(a[i])):
+                a[i][j][0], a[i][j][1] = self.scale(a[i][j][0], a[i][j][1], kx, ky, m1, m2)
+        self.draw_img(a)
                 
 
     def quit_on_button_click(self):
         self.master.quit()
+
 
 
     def debuger_write_info(self, s):
@@ -84,11 +90,12 @@ class Application:
             self.var.set("| Welcome! waiting for commands...\n")
         self.var.set(self.var.get() + "\n> " + s)
 
-    def draw_img(self, a):
+    def draw_img(self, a_arg):
         self.canvas.delete("img")
-        for i in range(len(a)):
-            if(i < len(a)-1):
-                self.canvas.create_line(300 + a[i][0], 300 + a[i][1]*(-1), 300 + a[i+1][0], 300 + a[i+1][1]*(-1), tag="img")
+        for a in a_arg:
+            for i in range(len(a)):
+                if(i < len(a)-1):
+                    self.canvas.create_line(300 + a[i][0], 300 + a[i][1]*(-1), 300 + a[i+1][0], 300 + a[i+1][1]*(-1), tag="img")
 
     def calculate_dots(self, left_b, right_b):
         i = left_b
@@ -122,7 +129,6 @@ class Application:
             i += 0.06
         self.f3_list.append([right_b, self.f3(right_b)])
 
-
     def init_img(self, a):
         for i in range(len(a)):
             if(i < len(a) - 1):
@@ -130,6 +136,14 @@ class Application:
                 x2, y2 = self.scale(a[i+1][0], a[i+1][1], 250, 250, 0, 0)
                 self.canvas.create_line(300 + a[i][0], 300 + a[i][1]*(-1), 300 + x2, 300 + y2*(-1), tag="img") 
         a[i][0], a[i][1] = x2, y2
+
+    def create_list_with_dots(self):
+        for i in range(len(self.f1_list)):
+            self.dot_list[0].append(self.f1_list[i][:])
+        for i in range(len(self.f2_list)):
+            self.dot_list[1].append(self.f2_list[i][:])
+        for i in range(len(self.f3_list)):
+            self.dot_list[2].append(self.f3_list[i][:])
 
 
 
