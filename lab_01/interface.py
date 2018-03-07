@@ -110,15 +110,15 @@ class Application:
         self.f1_list.append([right_b, self.f1(right_b)])
         i = left_b
         node = [[], []]
-        while(i < right_b + 0.06):
-            if(i > right_b):
+        while(i < 0.4 + 0.06):
+            if(i > 0.4):
                 break
             node[0] = i
             node[1] = self.f2(i)
             self.f2_list.append([node[0], node[1]])
             i += 0.06
-        self.f2_list.append([right_b, self.f2(right_b)])
-        i = left_b
+        self.f2_list.append([0.4, self.f2(0.4)])
+        i = -0.4                     #left_b
         node = [[], []]
         while(i < right_b + 0.06):
             if(i > right_b):
