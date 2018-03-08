@@ -52,19 +52,12 @@ class Application:
         for i in self.dot_list:
             self.init_img(i)
 
+        # dot list history (for self.dot_list)
+        self.dot_list_history = []
+        self.remember_dot_stage()
+        print(self.dot_list_history)
 
 
-
-
-    def scale(self, x, y, kx, ky, m1, m2):
-        return kx * x + (1 - kx)*m1, ky * y + (1 - ky)*m2
-
-    def f1(self, x):
-        return x**2
-    def f2(self, x):
-        return m.exp(x)
-    def f3(self, x):
-        return m.exp(-x)
 
 
 
@@ -78,11 +71,24 @@ class Application:
             for j in range(len(a[i])):
                 a[i][j][0], a[i][j][1] = self.scale(a[i][j][0], a[i][j][1], kx, ky, m1, m2)
         self.draw_img(a)
+        print(self.dot_list_history)
                 
 
     def quit_on_button_click(self):
         self.master.quit()
 
+
+
+
+    def scale(self, x, y, kx, ky, m1, m2):
+        return kx * x + (1 - kx)*m1, ky * y + (1 - ky)*m2
+
+    def f1(self, x):
+        return x**2
+    def f2(self, x):
+        return m.exp(x)
+    def f3(self, x):
+        return m.exp(-x)
 
 
     def debuger_write_info(self, s):
@@ -144,6 +150,16 @@ class Application:
             self.dot_list[1].append(self.f2_list[i][:])
         for i in range(len(self.f3_list)):
             self.dot_list[2].append(self.f3_list[i][:])
+
+    def remember_dot_stage(self):
+        node = [[], [], []]
+        for i in range(len(self.dot_list[0])):
+            node[0].append(self.dot_list[0][i][:])
+        for i in range(len(self.dot_list[1])):
+            node[1].append(self.dot_list[1][i][:])
+        for i in range(len(self.dot_list[2])):
+            node[2].append(self.dot_list[2][i][:])
+        self.dot_list_history.append(node)
 
 
 
