@@ -118,7 +118,8 @@
       </object>
     </child>
     <child>
-      <object class="tk.Button" id="prev">
+      <object class="tk.Button" id="back">
+        <property name="command">back_on_button_click</property>
         <property name="relief">ridge</property>
         <property name="text" translatable="yes">back</property>
         <layout>

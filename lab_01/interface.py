@@ -55,7 +55,6 @@ class Application:
         # dot list history (for self.dot_list)
         self.dot_list_history = []
         self.remember_dot_stage()
-        print(self.dot_list_history)
 
 
 
@@ -71,12 +70,29 @@ class Application:
             for j in range(len(a[i])):
                 a[i][j][0], a[i][j][1] = self.scale(a[i][j][0], a[i][j][1], kx, ky, m1, m2)
         self.draw_img(a)
-        print(self.dot_list_history)
+        self.remember_dot_stage()
                 
 
     def quit_on_button_click(self):
         self.master.quit()
 
+
+    def back_on_button_click(self):
+        if(not len(self.dot_list_history) > 1):
+            return
+
+        a = self.dot_list_history
+        b = self.dot_list
+        for i in range(len(a[len(a)-2][0])):
+            b[0][i] = a[len(a)-2][0][i][:]
+        for i in range(len(a[len(a)-2][1])):
+            b[1][i] = a[len(a)-2][1][i][:]
+        for i in range(len(a[len(a)-2][2])):
+            b[2][i] = a[len(a)-2][2][i][:]
+        del a[len(a)-1]
+        
+        self.draw_img(b)
+        
 
 
 
