@@ -20,10 +20,10 @@
         <layout>
           <property name="column">0</property>
           <property name="columnspan">4</property>
-          <property name="ipadx">80</property>
+          <property name="ipadx">79</property>
           <property name="pady">4</property>
           <property name="propagate">True</property>
-          <property name="row">13</property>
+          <property name="row">10</property>
         </layout>
       </object>
     </child>
@@ -87,10 +87,10 @@
         <layout>
           <property name="column">0</property>
           <property name="columnspan">4</property>
-          <property name="ipadx">82</property>
+          <property name="ipadx">80</property>
           <property name="pady">4</property>
           <property name="propagate">True</property>
-          <property name="row">14</property>
+          <property name="row">13</property>
         </layout>
       </object>
     </child>
@@ -101,16 +101,16 @@
         <layout>
           <property name="column">0</property>
           <property name="columnspan">4</property>
-          <property name="ipadx">73</property>
+          <property name="ipadx">71</property>
           <property name="pady">4</property>
           <property name="propagate">True</property>
-          <property name="row">15</property>
+          <property name="row">16</property>
         </layout>
       </object>
     </child>
     <child>
-      <object class="tk.Entry" id="input">
-        <property name="textvariable">string:_input_text</property>
+      <object class="tk.Entry" id="moveIn">
+        <property name="textvariable">string:_input_text_mv</property>
         <layout>
           <property name="column">0</property>
           <property name="columnspan">4</property>
@@ -118,7 +118,7 @@
           <property name="ipady">4</property>
           <property name="pady">4</property>
           <property name="propagate">True</property>
-          <property name="row">10</property>
+          <property name="row">9</property>
         </layout>
       </object>
     </child>
@@ -132,7 +132,35 @@
           <property name="columnspan">4</property>
           <property name="pady">20</property>
           <property name="propagate">True</property>
-          <property name="row">16</property>
+          <property name="row">18</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Entry" id="scaleIn">
+        <property name="textvariable">string:_input_text_scl</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">27</property>
+          <property name="ipady">4</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">12</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Entry" id="rotateIn">
+        <property name="textvariable">string:_input_text_rt</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">27</property>
+          <property name="ipady">4</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">15</property>
         </layout>
       </object>
     </child>

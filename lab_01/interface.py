@@ -34,8 +34,12 @@ class Application:
         self.var = tk.StringVar()
         self.var = self.builder.get_variable("_debug_text")
             # input variable
-        self.inputStr = tk.StringVar()
-        self.inputStr = self.builder.get_variable("_input_text")
+        self.inputStrMv = tk.StringVar()
+        self.inputStrMv = self.builder.get_variable("_input_text_mv")
+        self.inputStrScl = tk.StringVar()
+        self.inputStrScl = self.builder.get_variable("_input_text_scl")
+        self.inputStrRt = tk.StringVar()
+        self.inputStrRt = self.builder.get_variable("_input_text_rt")
 
 
         # calculate figure coordinates
@@ -60,10 +64,10 @@ class Application:
 
 
     def rotate_on_button_click(self):
-        if(not self.inputStr.get()):
+        if(not self.inputStrRt.get()):
             return
         
-        cx, cy, angle = map(float, self.inputStr.get().split())
+        cx, cy, angle = map(float, self.inputStrRt.get().split())
         angle = m.radians(angle)
         a = self.dot_list
         for i in range(len(a)):
@@ -76,10 +80,10 @@ class Application:
 
 
     def move_on_button_click(self):
-        if(not self.inputStr.get()):
+        if(not self.inputStrMv.get()):
             return
         
-        kx, ky = map(float, self.inputStr.get().split())
+        kx, ky = map(float, self.inputStrMv.get().split())
         a = self.dot_list
         for i in range(len(a)):
             for j in range(len(a[i])):
@@ -90,10 +94,10 @@ class Application:
 
 
     def scale_on_button_click(self):
-        if(not self.inputStr.get()):
+        if(not self.inputStrScl.get()):
             return
         
-        kx, ky, m1, m2 = map(float, self.inputStr.get().split())
+        kx, ky, m1, m2 = map(float, self.inputStrScl.get().split())
         a = self.dot_list
         for i in range(len(a)):
             for j in range(len(a[i])):
@@ -218,3 +222,16 @@ if __name__ == '__main__':
     root = tk.Tk()
     app = Application(root)
     root.mainloop()
+
+
+
+# commutative
+# move - move
+# scale - scale
+# rotate - rotate
+# solid scale - rotate
+
+# not 
+# move - rotate
+# move - scale
+# not solid scale - rotate
