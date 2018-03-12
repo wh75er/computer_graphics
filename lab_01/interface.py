@@ -6,7 +6,6 @@ except:
     import Tkinter as tk  # for python 2
 import pygubu
 import math as m
-import numpy as np
 
 
 class Application:
@@ -60,6 +59,36 @@ class Application:
 
 
 
+    def rotate_on_button_click(self):
+        if(not self.inputStr.get()):
+            return
+        
+        cx, cy, angle = map(float, self.inputStr.get().split())
+        angle = m.radians(angle)
+        a = self.dot_list
+        for i in range(len(a)):
+            for j in range(len(a[i])):
+                a[i][j][0], a[i][j][1] = cx + (a[i][j][0] - cx)*m.cos(angle) - (a[i][j][1] - cy)*m.sin(angle) \
+                                        ,cy + (a[i][j][0] - cx)*m.sin(angle) + (a[i][j][1] - cy)*m.cos(angle)
+        self.draw_img(a)
+        self.remember_dot_stage()
+        self.debuger_write_info("rotate done")
+
+
+    def move_on_button_click(self):
+        if(not self.inputStr.get()):
+            return
+        
+        kx, ky = map(float, self.inputStr.get().split())
+        a = self.dot_list
+        for i in range(len(a)):
+            for j in range(len(a[i])):
+                a[i][j][0], a[i][j][1] = a[i][j][0] + kx, a[i][j][1] + ky
+        self.draw_img(a)
+        self.remember_dot_stage()
+        self.debuger_write_info("move done")
+
+
     def scale_on_button_click(self):
         if(not self.inputStr.get()):
             return
@@ -71,6 +100,7 @@ class Application:
                 a[i][j][0], a[i][j][1] = self.scale(a[i][j][0], a[i][j][1], kx, ky, m1, m2)
         self.draw_img(a)
         self.remember_dot_stage()
+        self.debuger_write_info("scale done")
                 
 
     def quit_on_button_click(self):
@@ -92,6 +122,7 @@ class Application:
         del a[len(a)-1]
         
         self.draw_img(b)
+        self.debuger_write_info("back step")
         
 
 
@@ -109,7 +140,10 @@ class Application:
 
     def debuger_write_info(self, s):
         if(self.var.get().count('\n') > 8):
-            self.var.set("| Welcome! waiting for commands...\n")
+            self.var.set("| Welcome! waiting for commands...\n"
+                        "| kx, ky -- move\n"
+                        "| kx, ky, xc, yc -- scale\n"
+                        "| xc, yc, angle(degr) -- rotate\n")
         self.var.set(self.var.get() + "\n> " + s)
 
     def draw_img(self, a_arg):

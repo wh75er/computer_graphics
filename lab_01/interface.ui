@@ -15,6 +15,7 @@
     </layout>
     <child>
       <object class="tk.Button" id="move">
+        <property name="command">move_on_button_click</property>
         <property name="text" translatable="yes">move</property>
         <layout>
           <property name="column">0</property>
@@ -63,7 +64,10 @@
         <property name="height">10</property>
         <property name="justify">left</property>
         <property name="relief">sunken</property>
-        <property name="text" translatable="yes">| Welcome! waiting for commands...</property>
+        <property name="text" translatable="yes">| Welcome! waiting for commands...
+| kx, ky -- move
+| kx, ky, xc, yc -- scale
+| xc, yc, angle(degr) -- rotate</property>
         <property name="textvariable">string:_debug_text</property>
         <property name="width">26</property>
         <layout>
@@ -92,6 +96,7 @@
     </child>
     <child>
       <object class="tk.Button" id="rotation">
+        <property name="command">rotate_on_button_click</property>
         <property name="text" translatable="yes">rotation</property>
         <layout>
           <property name="column">0</property>
