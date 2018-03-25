@@ -1,4 +1,4 @@
-/*
+ /*
  * Compile me with:
  *   gcc -o tut tut.c $(pkg-config --cflags --libs gtk+-2.0 gmodule-2.0)
  */
@@ -6,13 +6,40 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 
+static cairo_surface_t *surface = NULL;
+static void do_drawing(GtkWidget *widget, cairo_t *cr);
 
 extern "C" {
 void quit_on_click_button();
 }
 
-//class canvas_ {
-//};
+
+static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, 
+    gpointer user_data)
+{
+  gtk_widget_get_allocated_width(widget);
+  gtk_widget_get_allocated_height(widget);
+  do_drawing(widget, cr);
+  gtk_widget_queue_draw(widget);
+
+  return FALSE;
+}
+
+static void do_drawing(GtkWidget *widget, cairo_t *cr)
+{
+  cairo_set_source_rgb (cr, 100, 0, 10);
+  cairo_paint(cr);
+
+  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_set_line_width(cr, 0.5);
+
+  cairo_move_to(cr, 0, 0);
+  cairo_line_to(cr, 100, 100);
+  cairo_stroke(cr);
+  
+}
+
+
 
 
 
@@ -48,6 +75,7 @@ int	main(int argc, char **argv )
 	gdk_rgba_parse (&main_window_bg, "#fffdda");
 	gdk_rgba_parse (&canvas_bg, "#ffffff");
 	gtk_widget_override_background_color ( GTK_WIDGET( window ), GTK_STATE_FLAG_NORMAL, &main_window_bg);
+	gtk_widget_override_background_color ( GTK_WIDGET( canvas ), GTK_STATE_FLAG_NORMAL, &canvas_bg);
 
 
     gtk_builder_connect_signals( builder, NULL );
@@ -56,10 +84,12 @@ int	main(int argc, char **argv )
 
     gtk_widget_show( window );
 
+	g_signal_connect (canvas, "draw", G_CALLBACK (on_draw_event), NULL);
+
+
     gtk_main();
 
-	gtk_widget_override_background_color ( GTK_WIDGET( canvas ), GTK_STATE_FLAG_NORMAL, &canvas_bg);
-	gtk_widget_queue_draw( GTK_WIDGET ( canvas ) );
+
 
     return( 0 );
 }
