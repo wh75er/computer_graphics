@@ -1,89 +1,193 @@
-#include <cairo.h>
+/*
+ * File: colorbutton.c
+ *
+ */
 #include <gtk/gtk.h>
+#include <stdlib.h>
 
-static void do_drawing(cairo_t *);
+GtkWidget *button;
+GtkWidget *vbox;
 
-struct {
-  int count;
-  double coordx[100];
-  double coordy[100];
-} glob;
+void GetDialogColor (GdkColor *color);
 
-static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, 
-    gpointer user_data)
+/*
+ * CreateBackgroundStyle 
+ *
+ * Create a style using the colors passed in.  
+ * Set the foreground color, the text color and the
+ * background color.  Note that this makes all the 
+ * states be the same color. 
+ *
+ * fg - foreground color
+ * text - text color
+ * bg - background color
+ */
+GtkStyle *CreateBackgroundStyle (GdkColor bg)
 {
-  do_drawing(cr);
-  gtk_widget_queue_draw(widget);
+    GtkStyle *defstyle;
+    GtkStyle *style;
+    int i;
 
-  return FALSE;
-}
+    /* --- Get the default style --- */
+    defstyle = gtk_widget_get_default_style ();
 
-static void do_drawing(cairo_t *cr)
-{
-  cairo_set_source_rgb(cr, 0, 0, 0);
-  cairo_set_line_width(cr, 0.5);
+    /* --- Make a copy of it. --- */
+    style = gtk_style_copy (defstyle);
 
-  int i, j;
-  for (i = 0; i <= glob.count - 1; i++ ) {
-      for (j = 0; j <= glob.count - 1; j++ ) {
-          cairo_move_to(cr, glob.coordx[i], glob.coordy[i]);
-          cairo_line_to(cr, glob.coordx[j], glob.coordy[j]);
-      }
-  }
-  cairo_move_to(cr, 0, 0);
-  cairo_line_to(cr, 100, 100);
+    /* --- Set the colors for each state --- */
+    for (i = 0; i < 5; i++) {
 
-  glob.count = 0;
-  cairo_stroke(cr);    
-}
-
-static gboolean clicked(GtkWidget *widget, GdkEventButton *event,
-    gpointer user_data)
-{
-    if (event->button == 1) {
-        glob.coordx[glob.count] = event->x;
-        glob.coordy[glob.count++] = event->y;
+        /* --- Set the colors for the style --- */
+        style->bg[i] = bg;
     }
 
-    if (event->button == 3) {
-        gtk_widget_queue_draw(widget);
-    }
-
-    return TRUE;
+    /* --- All done, here's new style --- */
+    return (style);
 }
 
 
-int main(int argc, char *argv[])
+/*
+ * NewStyle
+ *
+ * Create a random style using the list of colors
+ * above.  There is no checking to see if the colors 
+ * would be a bad choice.
+ */
+GtkStyle *NewStyle (GdkColor c)
 {
-  GtkWidget *window;
-  GtkWidget *darea;
-  
-  glob.count = 0;
+    GtkStyle *style;
 
-  gtk_init(&argc, &argv);
+    /* --- Create a style from the color --- */
+    style = CreateBackgroundStyle (c);
 
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    /* --- return the style --- */
+    return (style);
+}
 
-  darea = gtk_drawing_area_new();
-  gtk_container_add(GTK_CONTAINER(window), darea);
- 
-  gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
 
-  g_signal_connect(G_OBJECT(darea), "draw", 
-      G_CALLBACK(on_draw_event), NULL); 
-  g_signal_connect(window, "destroy",
-      G_CALLBACK(gtk_main_quit), NULL);  
+/*
+ * CloseAppWindow
+ *
+ * Close down the application
+ */
+gint CloseAppWindow (GtkWidget *widget, gpointer gdata)
+{
+    g_print ("Quitting...\n");
+    gtk_main_quit ();
+    return (FALSE);
+}
+
+
+/*
+ * SetStyleRecursively
+ *
+ * Set the style on the current widget and on any 
+ * children widgets.
+ */
+void SetStyleRecursively (GtkWidget *widget, gpointer data)
+{
+    GtkStyle *style;
+
+    /* --- Get the style --- */
+    style = (GtkStyle *) data;
+
+    /* --- Set style on current widget --- */
+    gtk_widget_set_style (widget, style);
+
+    /* --- If it has other widgets --- */
+    if (GTK_IS_CONTAINER (widget)) {
+
+        /* --- Set the style on those widgets too --- */
+        gtk_container_foreach (GTK_CONTAINER (widget), 
+                           SetStyleRecursively, style);
+    }
+}
+
+
+/*
+ * button_was_clicked
+ * 
+ * event handler called when the button is clicked.
+ * We can do this because the color dialog is modal here 
+ * and doesn't return until a color is retrieved.
+ */
+void ButtonClicked (GtkWidget *widget, gpointer gdata)
+{
+    GtkStyle *style;
+    GdkColor color;
+
+    /* --- Call the color dialog to get a color --- */
+    GetDialogColor (&color);
+
+    /* --- Create a style based on the color --- */
+    style = NewStyle (color);
+
+    /* --- Set the style of the wiget based on that new style */
+    SetStyleRecursively (widget, (gpointer) style);
+}
+
+/*
+ * CreateButton
+ *
+ * Create a button and add it to the vbox.  Setup the 
+ * event handler to "ButtonClicked"
+ */
+void CreateButton (GtkWidget *vbox, char *label)
+{
+    GtkWidget *button;
+
+    /* --- Create a button --- */
+    button = gtk_button_new_with_label (label);
+
+    gtk_signal_connect (GTK_OBJECT (button), "clicked", 
+                GTK_SIGNAL_FUNC (ButtonClicked), NULL);
+
+    /* --- The main windows contains the button.  --- */
+    gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+
+    /* --- Make the button visible --- */
+    gtk_widget_show (button);
+}
+
+
+/*
+ * main
+ *
+ * Program begins here.
+ */
+int main (int argc, char *argv[]) 
+{
+    GtkWidget *window;
+
+    /* --- Initialize gtk, handle command line parameters --- */
+    gtk_init (&argc, &argv);
+
+    /* --- Create a window --- */
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    /* --- Need to know when window closes --- */
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event", 
+                GTK_SIGNAL_FUNC (CloseAppWindow), NULL);
     
-  g_signal_connect(window, "button-press-event", 
-      G_CALLBACK(clicked), NULL);
- 
-  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-  gtk_window_set_default_size(GTK_WINDOW(window), 400, 300); 
-  gtk_window_set_title(GTK_WINDOW(window), "Lines");
+    /* --- Put some room around objects in the container --- */
+    gtk_container_border_width (GTK_CONTAINER (window), 15);
 
-  gtk_widget_show_all(window);
+    /* --- Create vertical packing box --- */
+    vbox = gtk_vbox_new (FALSE, 0);
 
-  gtk_main();
+    /* --- Create a button --- */
+    CreateButton (vbox, "Pick Color");
 
-  return 0;
+    /* --- Now, make the window visible --- */
+    gtk_widget_show (vbox);
+    gtk_container_add (GTK_CONTAINER (window), vbox);
+    gtk_widget_show (window);
+
+    /* --- Do not return until "quit" --- */
+    gtk_main ();
+
+    /* --- Exit status code. --- */
+    return 0;
 }
+
+
