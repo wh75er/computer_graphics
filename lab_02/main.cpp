@@ -10,6 +10,15 @@
 static cairo_surface_t *surface = NULL;
 static void do_drawing(GtkWidget *widget, cairo_t *cr);
 
+
+struct {
+	int count = 0;
+	int coordx[10];
+	int coordy[10];
+	const gchar* type[10];
+}lines;
+
+
 class bg_color
 {
 	public:
@@ -27,15 +36,21 @@ class fg_color
 };
 
 extern "C" {
+void get_alg(GtkComboBox *widget, gpointer user_data);
 void get_bg_color(GtkColorChooser *chooser, GdkRGBA *color, gpointer user_data);
+void get_fg_color(GtkColorChooser *chooser, GdkRGBA *color, gpointer user_data);
+
+void add_point();
 void quit_on_click_button();
 }
 
 
 static bg_color bg_color;
 static fg_color fg_color;
+static const gchar* current_alg = "dda_alg";
+
 static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, 
-    gpointer user_data)
+    							gpointer user_data)
 {
   do_drawing(widget, cr);
   gtk_widget_queue_draw(widget);
@@ -48,8 +63,8 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
   cairo_set_source_rgb (cr, bg_color.r, bg_color.g, bg_color.b);
   cairo_paint(cr);
 
-  cairo_set_source_rgb(cr, 0, 0, 0);
-  cairo_set_line_width(cr, 0.5);
+  cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
+  cairo_set_line_width(cr, 2);
 
   cairo_move_to(cr, 0, 0);
   cairo_line_to(cr, 100, 100);
@@ -106,6 +121,14 @@ int	main(int argc, char **argv )
     return( 0 );
 }
 
+
+
+void get_alg(GtkComboBox  *widget,
+             gpointer      user_data)
+{
+	current_alg = gtk_combo_box_get_active_id (widget);
+}
+
 void get_bg_color(GtkColorChooser *chooser, GdkRGBA *color, gpointer user_data)
 {
 	GdkRGBA cur_color;
@@ -113,6 +136,22 @@ void get_bg_color(GtkColorChooser *chooser, GdkRGBA *color, gpointer user_data)
 	bg_color.r = cur_color.red;
 	bg_color.g = cur_color.green;
 	bg_color.b = cur_color.blue;
+}
+
+void get_fg_color(GtkColorChooser *chooser, GdkRGBA *color, gpointer user_data)
+{
+	GdkRGBA cur_color;
+	gtk_color_chooser_get_rgba(chooser, &cur_color);
+	fg_color.r = cur_color.red;
+	fg_color.g = cur_color.green;
+	fg_color.b = cur_color.blue;
+}
+
+
+
+void add_point()
+{
+	printf("%s\n", current_alg);
 }
 
 void quit_on_click_button()
