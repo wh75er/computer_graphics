@@ -1,101 +1,4 @@
- /*
- * Compile me with:
- *   gcc -o tut tut.c $(pkg-config --cflags --libs gtk+-2.0 gmodule-2.0)
- */
-
-#include <gtk/gtk.h>
-#include <stdio.h>
-#include <string.h>
-
-#define MAX_LINE_COUNT 10
-
-
-static cairo_surface_t *surface = NULL;
-static void do_drawing(GtkWidget *widget, cairo_t *cr);
-
-
-
-
-class bg_color
-{
-	public:
-		gdouble r = 217 / 255.0;
-		gdouble g = 234 / 255.0;
-		gdouble b = 235 / 255.0;
-};
-
-class fg_color
-{
-	public:
-		gdouble r = 0 / 255.0;
-		gdouble g = 0 / 255.0;
-		gdouble b = 0 / 255.0;
-};
-
-
-struct {
-	int count = 0;
-	int coordx[MAX_LINE_COUNT];
-	int coordy[MAX_LINE_COUNT];
-	const gchar* type[MAX_LINE_COUNT];
-	fg_color color[MAX_LINE_COUNT];
-}lines;
-
-struct {
-	int start_x = 0;
-	int start_y = 0;
-	int end_x = 0;
-	int end_y = 0;
-}coordsIn;
-
-extern "C" {
-void get_alg(GtkComboBox *widget, gpointer user_data);
-void get_bg_color(GtkColorChooser *chooser, GdkRGBA *color, gpointer user_data);
-void get_fg_color(GtkColorChooser *chooser, GdkRGBA *color, gpointer user_data);
-void get_angle_str(GtkEntry *entry, gpointer user_data);
-void get_spoint_str(GtkEntry *entry, gpointer user_data);
-void get_epoint_str(GtkEntry *entry, gpointer user_data);
-
-void get_angle_on_click_button();
-void add_point();
-void quit_on_click_button();
-}
-
-
-static bg_color bg_color;
-static fg_color fg_color;
-static const gchar* current_alg = "dda_alg";
-static const gchar* current_view = "auto_view";
-static int angle = 45;
-
-	static const gchar *entry_start;
-	static const gchar *entry_end;
-	static const gchar *entry_angle = "45";
-
-
-static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, 
-    							gpointer user_data)
-{
-  do_drawing(widget, cr);
-  gtk_widget_queue_draw(widget);
-
-  return FALSE;
-}
-
-static void do_drawing(GtkWidget *widget, cairo_t *cr)
-{
-  cairo_set_source_rgb (cr, bg_color.r, bg_color.g, bg_color.b);
-  cairo_paint(cr);
-
-  cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
-  cairo_set_line_width(cr, 1);
-
-  cairo_move_to(cr, 0, 0);
-  cairo_line_to(cr, 100, 100);
-  cairo_stroke(cr);
-}
-
-
+#include "main.h"
 
 
 
@@ -147,6 +50,12 @@ int	main(int argc, char **argv )
 
 
 
+void get_view(GtkComboBox  *widget,
+             gpointer      user_data)
+{
+	current_view = gtk_combo_box_get_active_id (widget);
+}
+
 void get_alg(GtkComboBox  *widget,
              gpointer      user_data)
 {
@@ -182,7 +91,6 @@ void get_spoint_str(GtkEntry *entry, gpointer user_data)
 void get_epoint_str(GtkEntry *entry, gpointer user_data)
 {
 	entry_end = gtk_entry_get_text(entry);					// you have to press enter to comfirm it
-	printf("%s\n", entry_end);
 }
 
 
@@ -195,9 +103,31 @@ void get_angle_on_click_button()
 	sscanf(entry_angle, "%d", &angle);
 }
 
-void add_point()
+void add_point_on_click_button()
 {
-	printf("%s\n", current_alg);
+	if(lines.count < MAX_LINE_COUNT && entry_start && entry_end && strcmp(entry_start, "") && strcmp(entry_end, "")) {
+		int x, y;
+
+		if(!sscanf(entry_start, "%d %d", &x, &y)) {
+			puts("error");
+			return;
+		}
+		lines.coordx[lines.count] = x;
+		lines.coordy[lines.count] = y;
+
+		if(!sscanf(entry_end, "%d %d", &x, &y)) {
+			puts("error");
+			return;
+		}
+		lines.coordx[lines.count] = x;
+		lines.coordy[lines.count] = y;
+
+		lines.type[lines.count] = current_alg;
+
+		lines.color[lines.count] = fg_color; 
+
+		lines.count++;
+	}
 }
 
 void quit_on_click_button()
