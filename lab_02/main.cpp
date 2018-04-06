@@ -108,14 +108,14 @@ void add_point_on_click_button()
 	if(lines.count < MAX_LINE_COUNT && entry_start && entry_end && strcmp(entry_start, "") && strcmp(entry_end, "")) {
 		int x, y;
 
-		if(!sscanf(entry_start, "%d %d", &x, &y)) {
+		if(sscanf(entry_start, "%d %d", &x, &y) != 2) {
 			puts("error");
 			return;
 		}
 		lines.coordx[lines.count] = x;
 		lines.coordy[lines.count] = y;
 
-		if(!sscanf(entry_end, "%d %d", &x, &y)) {
+		if(sscanf(entry_end, "%d %d", &x, &y) != 2) {
 			puts("error");
 			return;
 		}
@@ -127,6 +127,7 @@ void add_point_on_click_button()
 		lines.color[lines.count] = fg_color; 
 
 		lines.count++;
+		puts("point added");
 	}
 }
 

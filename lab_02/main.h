@@ -5,8 +5,11 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #define MAX_LINE_COUNT 10
+#define degreesToRadians(angleDegrees) ((angleDegrees) * M_PI / 180.0)
+#define radiansToDegrees(angleRadians) ((angleRadians) * 180.0 / M_PI)
 
 
 static cairo_surface_t *surface = NULL;

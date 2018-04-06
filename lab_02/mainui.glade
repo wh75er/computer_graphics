@@ -3,6 +3,7 @@
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkEntryCompletion" id="entrycompletion1"/>
+  <object class="GtkEntryCompletion" id="entrycompletion2"/>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="border_width">6</property>
@@ -32,6 +33,7 @@
                 <property name="max_length">50</property>
                 <property name="width_chars">20</property>
                 <property name="caps_lock_warning">False</property>
+                <property name="input_purpose">number</property>
                 <signal name="activate" handler="get_spoint_str" swapped="no"/>
               </object>
               <packing>
@@ -46,6 +48,7 @@
                 <property name="can_focus">True</property>
                 <property name="max_length">50</property>
                 <property name="width_chars">20</property>
+                <property name="input_purpose">number</property>
                 <signal name="activate" handler="get_epoint_str" swapped="no"/>
               </object>
               <packing>
@@ -247,6 +250,7 @@
                 <property name="max_length">3</property>
                 <property name="width_chars">4</property>
                 <property name="text" translatable="yes">45</property>
+                <property name="input_purpose">number</property>
                 <signal name="activate" handler="get_angle_str" swapped="no"/>
               </object>
               <packing>
