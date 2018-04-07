@@ -5,6 +5,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 #include <math.h>
 
 #define MAX_LINE_COUNT 10
