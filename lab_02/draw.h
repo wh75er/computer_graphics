@@ -79,7 +79,7 @@ void dda(cairo_t *cr, double sx, double sy, double ex, double ey)
 	double x = sx;
 	double y = sy;
 	
-	double i = 1;
+	double i = 0;
     cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
 	while(i <= step) {
 		cairo_rectangle(cr, x, y, 1, 1);
@@ -95,6 +95,7 @@ void dda(cairo_t *cr, double sx, double sy, double ex, double ey)
 
 static void do_drawing(GtkWidget *widget, cairo_t *cr)
 {
+	// have to add draw objects from array/vector
         if(!strcmp(current_view, "auto_view")){
                 cairo_set_source_rgb (cr, bg_color.r, bg_color.g, bg_color.b);
                 cairo_paint(cr);

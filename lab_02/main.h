@@ -7,6 +7,9 @@
 #include <string.h>
 #include <algorithm>
 #include <math.h>
+#include <vector>
+
+using namespace std;
 
 #define MAX_LINE_COUNT 10
 #define degreesToRadians(angleDegrees) ((angleDegrees) * M_PI / 180.0)
@@ -43,6 +46,16 @@ struct {
         const gchar* type[MAX_LINE_COUNT];
         fg_color color[MAX_LINE_COUNT];
 }lines;
+
+// using vectors for arrays(sun drawing, we have to remember objects)
+struct suns{
+	vector <int> coordx;
+	vector <int> coordy;
+	vector <const gchar*> type;
+	vector <fg_color> color;
+};
+
+vector <suns> suns;
 
 extern "C" {
 void get_view(GtkComboBox *widget, gpointer user_data);
