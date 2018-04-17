@@ -101,6 +101,29 @@ void get_angle_on_click_button()
 		return;
 
 	sscanf(entry_angle, "%d", &angle);
+
+	sun object;
+	object.type = current_alg;
+	object.color = fg_color;
+
+	// remove element from object list if coincidence occur
+	for(vector<sun>::iterator it = suns.begin(); it < suns.end(); it++) {
+		if(!strcmp(it->type, current_alg)) {
+			suns.erase(it);
+		}
+	}
+
+	int ex, ey;
+	int r = 200;
+	int sx = 200, sy = 200;
+	for(int i = 0; i < 360; i += angle) {
+		ex = (float)(cos(degreesToRadians(i)) * r + sx);
+		ey = (float)(sin(degreesToRadians(i)) * r + sy);	
+		object.coordx.push_back(ex);
+		object.coordy.push_back(ey);
+	}
+
+	suns.push_back(object);
 }
 
 void add_point_on_click_button()

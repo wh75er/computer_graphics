@@ -7,6 +7,9 @@
 #include <string.h>
 #include <algorithm>
 #include <math.h>
+
+#include <iterator>
+#include <algorithm>
 #include <vector>
 
 using namespace std;
@@ -48,14 +51,14 @@ struct {
 }lines;
 
 // using vectors for arrays(sun drawing, we have to remember objects)
-struct suns{
+typedef struct {
 	vector <int> coordx;
 	vector <int> coordy;
-	vector <const gchar*> type;
-	vector <fg_color> color;
-};
+	const gchar* type;
+	fg_color color;
+}sun;
 
-vector <suns> suns;
+vector <sun> suns;
 
 extern "C" {
 void get_view(GtkComboBox *widget, gpointer user_data);

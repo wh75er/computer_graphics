@@ -12,7 +12,7 @@ static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr,
 
 void standart(cairo_t *cr, int sx, int sy, int ex, int ey)
 {
-    cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
+//    cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
 //	cairo_set_line_width(cr, 0.5);
 
 	cairo_move_to(cr, sx, sy);
@@ -31,7 +31,6 @@ void bresenham_digit(cairo_t *cr, int sx, int sy, int ex, int ey)
 
     int err = dx - dy;
 
-    cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
 	cairo_rectangle(cr, ex, ey, 1, 1);
 	cairo_stroke(cr);
     while(sx != ex || sy != ey)
@@ -80,7 +79,7 @@ void dda(cairo_t *cr, double sx, double sy, double ex, double ey)
 	double y = sy;
 	
 	double i = 0;
-    cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
+//    cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
 	while(i <= step) {
 		cairo_rectangle(cr, x, y, 1, 1);
 		cairo_stroke(cr);
@@ -99,32 +98,23 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
         if(!strcmp(current_view, "auto_view")){
                 cairo_set_source_rgb (cr, bg_color.r, bg_color.g, bg_color.b);
                 cairo_paint(cr);
-				/*
-                cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
-                cairo_set_line_width(cr, 1);
-
-                cairo_move_to(cr, 0, 0);
-                cairo_line_to(cr, 100, 100);
-                cairo_stroke(cr);
-				*/
-				int ex, ey;
-				int r = 200;
-				int sx = 200, sy = 200; 
-				for(int i = 0; i < 360; i += angle) {
-					ex = (float)(cos(degreesToRadians(i)) * r + sx);
-					ey = (float)(sin(degreesToRadians(i)) * r + sy);
-					if(!strcmp(current_alg, "stand_alg"))
-						standart(cr, sx, sy, ex, ey);
-					if(!strcmp(current_alg, "bres_dig_alg"))
-						bresenham_digit(cr, sx, sy, ex, ey);
-					if(!strcmp(current_alg, "dda_alg"))
-						dda(cr, sx, sy, ex, ey);
+				int sx = 200, sy = 200;
+				for(int i = 0; i < suns.size(); i++) {
+                	cairo_set_source_rgb (cr, suns[i].color.r, suns[i].color.g, suns[i].color.b);
+					for(int j = 0; j < suns[i].coordx.size(); j++) {
+						if(!strcmp(suns[i].type, "stand_alg"))
+							standart(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
+						if(!strcmp(suns[i].type, "bres_dig_alg"))
+							bresenham_digit(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
+						if(!strcmp(suns[i].type, "dda_alg"))
+							dda(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
+					}
 				}
         }
         if(!strcmp(current_view, "manual_view")) {
                 cairo_set_source_rgb (cr, bg_color.r, bg_color.g, bg_color.b);
                 cairo_paint(cr);
-                }
+		}
 }
 
 #endif
