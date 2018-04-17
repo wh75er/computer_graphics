@@ -135,15 +135,15 @@ void add_point_on_click_button()
 			puts("error");
 			return;
 		}
-		lines.coordx[lines.count] = x;
-		lines.coordy[lines.count] = y;
+		lines.sx[lines.count] = x;
+		lines.sy[lines.count] = y;
 
 		if(sscanf(entry_end, "%d %d", &x, &y) != 2) {
 			puts("error");
 			return;
 		}
-		lines.coordx[lines.count] = x;
-		lines.coordy[lines.count] = y;
+		lines.ex[lines.count] = x;
+		lines.ey[lines.count] = y;
 
 		lines.type[lines.count] = current_alg;
 
@@ -152,6 +152,12 @@ void add_point_on_click_button()
 		lines.count++;
 		puts("point added");
 	}
+}
+
+void clean_on_click_button()
+{
+	lines.count = 0;
+	suns.clear();
 }
 
 void quit_on_click_button()

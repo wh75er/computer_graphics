@@ -44,8 +44,10 @@ class fg_color
 
 struct {
         int count = 0;
-        int coordx[MAX_LINE_COUNT];
-        int coordy[MAX_LINE_COUNT];
+        int sx[MAX_LINE_COUNT];
+        int sy[MAX_LINE_COUNT];
+        int ex[MAX_LINE_COUNT];
+        int ey[MAX_LINE_COUNT];
         const gchar* type[MAX_LINE_COUNT];
         fg_color color[MAX_LINE_COUNT];
 }lines;
@@ -71,6 +73,7 @@ void get_epoint_str(GtkEntry *entry, gpointer user_data);
 
 void get_angle_on_click_button();
 void add_point_on_click_button();
+void clean_on_click_button();
 void quit_on_click_button();
 }
 

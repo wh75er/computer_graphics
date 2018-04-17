@@ -112,8 +112,18 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
 				}
         }
         if(!strcmp(current_view, "manual_view")) {
-                cairo_set_source_rgb (cr, bg_color.r, bg_color.g, bg_color.b);
-                cairo_paint(cr);
+				cairo_set_source_rgb (cr, bg_color.r, bg_color.g, bg_color.b);
+				cairo_paint(cr);
+				
+				for(int i = 0; i < lines.count; i++) {
+					cairo_set_source_rgb (cr, lines.color[i].r, lines.color[i].g, lines.color[i].b);
+					if(!strcmp(lines.type[i], "stand_alg"))
+						standart(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
+					if(!strcmp(lines.type[i], "bres_dig_alg"))
+						bresenham_digit(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
+					if(!strcmp(lines.type[i], "dda_alg"))
+						dda(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
+				}
 		}
 }
 
