@@ -150,7 +150,7 @@ void add_point_on_click_button()
 		lines.color[lines.count] = fg_color; 
 
 		lines.count++;
-		puts("point added");
+		puts("line added");
 	}
 }
 

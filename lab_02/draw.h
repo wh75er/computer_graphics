@@ -1,6 +1,27 @@
 #ifndef __DRAW_H__
 #define __DRAW_H__
 
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+
+#define swap(x,y) do \
+   { unsigned char swap_temp[sizeof(x) == sizeof(y) ? (signed)sizeof(x) : -1]; \
+     memcpy(swap_temp,&y,sizeof(x)); \
+     memcpy(&y,&x,       sizeof(x)); \
+     memcpy(&x,swap_temp,sizeof(x)); \
+    } while(0)
+
+float Sign(float x)
+{
+	if(x == 0) 
+		return 0;
+	else
+		return x/abs(x);
+}
+
+
 static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr,
                                                         gpointer user_data)
 {
@@ -22,72 +43,56 @@ void standart(cairo_t *cr, int sx, int sy, int ex, int ey)
 	return;
 }
 
-void bresenham_digit(cairo_t *cr, int sx, int sy, int ex, int ey)
+void bresenham_digit(cairo_t *cr, int x0, int y0, int x1, int y1)
 {
-	const int dx = abs(ex - sx);
-    const int dy = abs(ey - sy);
-    const int sign_x = sx < ex ? 1 : -1;
-    const int sign_y = sy < ey ? 1 : -1;
+	int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
+   int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
+   int err = dx+dy, e2; /* error value e_xy */
 
-    int err = dx - dy;
-
-	cairo_rectangle(cr, ex, ey, 1, 1);
+   for(;;){  /* loop */
+	cairo_rectangle(cr,x0, y0, 1, 1);
 	cairo_stroke(cr);
-    while(sx != ex || sy != ey)
-   {
-		cairo_rectangle(cr, sx, sy, 1, 1);
-		cairo_stroke(cr);
-        const int err2 = err * 2;
-
-        if(err2 > -dy)
-        {
-            err -= dy;
-            sx += sign_x;
-        }
-        if(err2 < dx)
-        {
-            err += dx;
-            sy += sign_y;
-        }
-    }
+      if (x0==x1 && y0==y1) break;
+      e2 = 2*err;
+      if (e2 >= dy) { err += dy; x0 += sx; } /* e_xy+e_x > 0 */
+      if (e2 <= dx) { err += dx; y0 += sy; } /* e_xy+e_y < 0 */
+   }
 }
 
-void dda(cairo_t *cr, double sx, double sy, double ex, double ey)
+void dda(cairo_t *cr, int x1, int y1, int x2, int y2)
 {
-	double dx=ex-sx;
-    double dy=ey-sy;
-	float sign_x = 1;
-	float sign_y = 1;
-	
-	if(dx < 0)
-		sign_x = -1;
-	if(dy < 0)
-		sign_y = -1;
-	dx=abs(dx);
-    dy=abs(dy);
+	float x,y,dx,dy,step, pixel;
+	int i;
 
-	double step = 1;
-	if(dx >= dy)
-		step = dx;
-	else
-		step=dy;
-	
-	dx = dx/step;
-	dy = dy/step;
+	dx=abs(x2-x1);
+    dy=abs(y2-y1);
 
-	double x = sx;
-	double y = sy;
-	
-	double i = 0;
-//    cairo_set_source_rgb(cr, fg_color.r, fg_color.g, fg_color.b);
-	while(i <= step) {
-		cairo_rectangle(cr, x, y, 1, 1);
-		cairo_stroke(cr);
-		x += dx*sign_x;
-		y += dy*sign_y;
-		i++;
-	}
-	
+    if(dx>=dy)
+    pixel=dx;
+    else
+    pixel=dy;
+
+    dx=(float)(x2-x1)/pixel;
+    dy=(float)(y2-y1)/pixel;
+
+    x=x1;
+    y=y1;
+
+    i=0;
+    while(i<=pixel)
+    {
+		cairo_rectangle(cr, (int)round(x), (int)round(y), 1, 1);
+          x+=dx;
+          y+=dy;
+          i++;
+    }
+	cairo_stroke(cr);
+}
+
+void bresenham_float(cairo_t *cr, float sx, float sy, float ex, float ey)
+{
+	//
+	return;
 }
 
 
@@ -108,6 +113,8 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
 							bresenham_digit(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
 						if(!strcmp(suns[i].type, "dda_alg"))
 							dda(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
+						if(!strcmp(suns[i].type, "bres_flo_alg"))
+							bresenham_float(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
 					}
 				}
         }
@@ -123,6 +130,8 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
 						bresenham_digit(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
 					if(!strcmp(lines.type[i], "dda_alg"))
 						dda(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
+					if(!strcmp(lines.type[i], "bres_flo_alg"))
+						bresenham_float(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
 				}
 		}
 }
