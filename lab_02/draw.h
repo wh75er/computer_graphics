@@ -43,20 +43,52 @@ void standart(cairo_t *cr, int sx, int sy, int ex, int ey)
 	return;
 }
 
-void bresenham_digit(cairo_t *cr, int x0, int y0, int x1, int y1)
+void bresenham_digit(cairo_t *cr, float x1, float y1, float x2, float y2)
 {
-	int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
-   int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
-   int err = dx+dy, e2; /* error value e_xy */
+        float delta_x = x2 - x1;
+        float delta_y = y2 - y1;
 
-   for(;;){  /* loop */
-	cairo_rectangle(cr,x0, y0, 1, 1);
-	cairo_stroke(cr);
-      if (x0==x1 && y0==y1) break;
-      e2 = 2*err;
-      if (e2 >= dy) { err += dy; x0 += sx; } /* e_xy+e_x > 0 */
-      if (e2 <= dx) { err += dx; y0 += sy; } /* e_xy+e_y < 0 */
-   }
+        float sx = Sign(delta_x);
+	 	float sy = Sign(delta_y);
+        delta_x = abs(delta_x);
+		delta_y = abs(delta_y);
+
+        float x = x1;
+		float y = y1;
+        int change = 0;
+
+		float c;
+        if (delta_y > delta_x) {
+				c = delta_x;
+				delta_x = delta_y;
+				delta_y = c;
+                change = 1;
+		}
+
+        float e = 2*delta_y - delta_x;
+
+        float length = delta_x;
+        while(length > 0) {
+				cairo_rectangle(cr, (int)round(x), (int)round(y), 1, 1);
+				cairo_stroke(cr);
+                if(e >= 0) {
+                    if(!change)
+                        y += sy;
+                    else
+                        x += sx;
+                    e -= delta_x*2;
+				}
+
+                if(e < 0) {
+                    if(!change)
+                        x += sx;
+                    else
+                        y += sy;
+                    e += delta_y*2;
+				}
+
+				length -= 1;
+		}
 }
 
 void dda(cairo_t *cr, int x1, int y1, int x2, int y2)
@@ -79,7 +111,7 @@ void dda(cairo_t *cr, int x1, int y1, int x2, int y2)
     y=y1;
 
     i=0;
-    while(i<=pixel)
+    while(i<pixel)
     {
 		cairo_rectangle(cr, (int)round(x), (int)round(y), 1, 1);
           x+=dx;
@@ -89,10 +121,101 @@ void dda(cairo_t *cr, int x1, int y1, int x2, int y2)
 	cairo_stroke(cr);
 }
 
-void bresenham_float(cairo_t *cr, float sx, float sy, float ex, float ey)
+void bresenham_float(cairo_t *cr, float x1, float y1, float x2, float y2)
 {
-	//
-	return;
+        float delta_x = x2 - x1;
+        float delta_y = y2 - y1;
+
+        float sx = Sign(delta_x);
+	 	float sy = Sign(delta_y);
+        delta_x = abs(delta_x);
+		delta_y = abs(delta_y);
+
+        float x = x1;
+		float y = y1;
+        int change = 0;
+
+		float c;
+        if (delta_y > delta_x) {
+				c = delta_x;
+				delta_x = delta_y;
+				delta_y = c;
+                change = 1;
+		}
+
+        float h = (float)delta_y/delta_x;
+        float e = h - 0.5;
+
+        float length = delta_x;
+        while(length > 0) {
+				cairo_rectangle(cr, (int)round(x), (int)round(y), 1, 1);
+				cairo_stroke(cr);
+                if(e >= 0) {
+                    if(!change)
+                        y += sy;
+                    else
+                        x += sx;
+                    e -= 1;
+				}
+
+                if(e < 0) {
+                    if(!change)
+                        x += sx;
+                    else
+                        y += sy;
+                    e += h;
+				}
+
+				length -= 1;
+		}
+}
+
+void bresenham_smooth(cairo_t *cr, float x1, float y1, float x2, float y2)
+{
+		float delta_x = x2 - x1;
+        float delta_y = y2 - y1;
+
+        int max_intens = 4;
+
+        float sx = Sign(delta_x);
+		float sy = Sign(delta_y);
+        delta_x = abs(delta_x);
+		delta_y = abs(delta_y);
+
+		float x = x1;
+		float y = y1;
+
+        int change = 0;
+
+        if (delta_y > delta_x) {
+				float c = delta_x;
+                delta_x = delta_y;
+				delta_y = c;
+                change = 1;
+		}
+
+        float h = (float)max_intens*delta_y/delta_x;
+        float w = (float)max_intens - h;
+        float e = (float)max_intens/2;
+
+        int length = delta_x;
+        while(length > 0) { 
+				cairo_rectangle(cr, (int)round(x), (int)round(y), 1, 1);
+				cairo_stroke(cr);
+                if(e <= w) {
+                        if(change)
+                                y += sy;
+                        else
+                                x += sx;
+                        e += h;
+				}
+                else {
+                        x += sx;
+                        y += sy;
+                        e -= w;
+				}
+                length -= 1;
+		}
 }
 
 
@@ -114,6 +237,8 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
 						if(!strcmp(suns[i].type, "dda_alg"))
 							dda(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
 						if(!strcmp(suns[i].type, "bres_flo_alg"))
+							bresenham_float(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
+						if(!strcmp(suns[i].type, "bres_step_alg"))
 							bresenham_float(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
 					}
 				}
