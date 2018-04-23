@@ -239,7 +239,7 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
 						if(!strcmp(suns[i].type, "bres_flo_alg"))
 							bresenham_float(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
 						if(!strcmp(suns[i].type, "bres_step_alg"))
-							bresenham_float(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
+							bresenham_smooth(cr, sx, sy, suns[i].coordx[j], suns[i].coordy[j]);
 					}
 				}
         }
@@ -257,6 +257,8 @@ static void do_drawing(GtkWidget *widget, cairo_t *cr)
 						dda(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
 					if(!strcmp(lines.type[i], "bres_flo_alg"))
 						bresenham_float(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
+					if(!strcmp(lines.type[i], "bres_step_alg"))
+						bresenham_smooth(cr, lines.sx[i], lines.sy[i], lines.ex[i], lines.ey[i]);
 				}
 		}
 }
