@@ -13,14 +13,10 @@ class Window(QtWidgets.QMainWindow):
         self.canvas.setScene(self.scene)
         self.image = QImage(520, 520, QImage.Format_ARGB32_Premultiplied)
         self.pen = QPen()
+
         self.fg_color = QColor(Qt.black)
         self.bg_color = QColor(Qt.white)
 
-        self.center_x = 255
-        self.center_y = 255
-        self.radius = 100
-        self.amount = 30
-        self.step = 10
         self.current_alg = "canonical equation"
         
         self.circle.setChecked(True)
@@ -29,22 +25,22 @@ class Window(QtWidgets.QMainWindow):
         self.bg_color_button.clicked.connect(lambda: self.get_bg_color(self))
         self.fg_color_button.clicked.connect(lambda: self.get_fg_color(self))
         self.concentric_button.clicked.connect(lambda: self.draw_centr(self))
-        self.center_input.returnPressed.connect(lambda: self.get_center_coord(self))
-        self.radius_input.returnPressed.connect(lambda: self.get_radius(self))
-        self.amount_input.returnPressed.connect(lambda: self.get_amount(self))
-        self.step_input.returnPressed.connect(lambda: self.get_step(self))
-        self.alg_box.currentIndexChanged.connect(lambda: self.get_algorithm(self))
         self.clean_button.clicked.connect(lambda: self.canvas_clean(self))
+        self.draw_button.clicked.connect(lambda: self.draw_manual(self))
+        self.alg_box.currentIndexChanged.connect(lambda: self.get_algorithm(self))
         
         
 
     def draw_centr(self, win):
         is_standart = False
         current_alg = self.current_alg
-        x = self.center_x
-        y = self.center_y
-        d = self.step
-        c = self.amount
+        
+        step = int(win.step_input.text())
+        amount = int(win.amount_input.text())
+        x = 255 
+        y = 255
+        d = step
+        c = amount
 
 
         if win.circle.isChecked():
@@ -79,6 +75,46 @@ class Window(QtWidgets.QMainWindow):
             pix = QPixmap(520, 520)
             pix.convertFromImage(win.image)
             win.scene.addPixmap(pix)
+
+    def draw_manual(self, win):
+        is_standart = False
+        current_alg = self.current_alg
+        x = win.center_x.value()
+        y = win.center_y.value()
+
+        if self.circle.isChecked():
+            rad = win.radius.value()
+            if current_alg == "canonical equation":
+                self.circle_canon(win, x, y, rad)
+            if current_alg == "parametric equation":
+                self.circle_param(win, x, y, rad)
+            if current_alg == "Bresenham":
+                self.circle_brez(win, x, y, rad)
+            if current_alg == "mid-point":
+                self.circle_middle(win, x, y, rad)
+            if current_alg == "standart":
+                is_standart = True
+                win.scene.addEllipse(x - rad, y - rad, rad * 2, rad * 2, win.pen)
+
+        if self.ellipse.isChecked():
+            a = win.a_box_input.value()
+            b = win.b_box_input.value()
+            if current_alg == "canonical equation":
+                self.ellipse_canon(win, x, y, b, a)
+            if current_alg == "parametric equation":
+                self.ellipse_param(win, x, y, b, a)
+            if current_alg == "Bresenham":
+                self.ellipse_brez(win, x, y, b, a)
+            if current_alg == "mid-point":
+                self.ellipse_middle(win, x, y, b, a)
+            if current_alg == "standart":
+                is_standart = True
+                win.scene.addEllipse(x - b, y - a, b*2, a*2, win.pen)
+
+        if not is_standart:
+            pix = QPixmap(520, 520)
+            pix.convertFromImage(win.image)
+            win.scene.addPixmap(pix)
         
     def canvas_clean(self, win):
         win.image.fill(self.bg_color)
@@ -107,31 +143,12 @@ class Window(QtWidgets.QMainWindow):
             s.setBackgroundBrush(color);
             win.fg_prev.setScene(s)
 
-    def get_center_coord(self, win):
-        s = win.center_input.text();
-        self.center_x, self.center_y = s.split()
-        print(self.center_x, self.center_y)
-
-    def get_radius(self, win):
-        s = win.radius_input.text();
-        self.radius = float(s)
-        print(self.radius)
-
-    def get_amount(self, win):
-        s = win.amount_input.text();
-        self.amount = int(s)
-        print(self.amount)
-
-    def get_step(self, win):
-        s = win.step_input.text();
-        self.step = int(s)
-        print(self.step)
-
     def get_algorithm(self, win):
         self.current_alg = win.alg_box.currentText()
         print(self.current_alg)
 
         
+# -------------------------- circle ------------------------------------
 
     def circle_canon(self, win, cx, cy, r):
         for x in range(0, r + 1, 1):
@@ -224,7 +241,7 @@ class Window(QtWidgets.QMainWindow):
             if x > y:
                 break
 
-# -----------------------------------------------------------------------
+# -------------------------- ellipse ------------------------------------
 
     def ellipse_canon(self, win, cx, cy, a, b):
         for x in range(0, a + 1, 1):
