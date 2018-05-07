@@ -62,10 +62,15 @@ class Window(QtWidgets.QMainWindow):
                     win.scene.addEllipse(x - i, y - i, i * 2, i * 2, win.pen)
 
         if win.ellipse.isChecked():
-            print("+\n")
             for i in range(d, d * c + d, d):
                 if current_alg == "canonical equation":
                     self.ellipse_canon(win, x, y, i * 2, i)
+                if current_alg == "parametric equation":
+                    self.ellipse_param(win, x, y, i * 2, i)
+                if current_alg == "Bresenham":
+                    self.ellipse_brez(win, x, y, i * 2, i)
+                if current_alg == "mid-point":
+                    self.ellipse_middle(win, x, y, i * 2, i)
                 if current_alg == "standart":
                     is_standart = True
                     win.scene.addEllipse(x - i * 2, y - i, i * 4, i * 2, win.pen)
@@ -235,6 +240,90 @@ class Window(QtWidgets.QMainWindow):
             win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
             win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
             win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
+
+    def ellipse_param(self, win, cx, cy, a, b):
+        m = max(a, b)
+        l = round(pi * m / 2)
+        for i in range(0, l + 1, 1):
+            x = round(a * cos(i / m))
+            y = round(b * sin(i / m))
+            win.image.setPixel(cx + x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
+
+    def ellipse_brez(self, win, cx, cy, a, b):
+        x = 0
+        y = b
+        a = a ** 2
+        d = round(b * b / 2 - a * b * 2 + a / 2)
+        b = b ** 2
+        while y >= 0:
+            win.image.setPixel(cx + x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
+            if d < 0:
+                buf = 2 * d + 2 * a * y - a
+                x += 1
+                if buf <= 0:
+                    d = d + 2 * b * x + b
+                else:
+                    y -= 1
+                    d = d + 2 * b * x - 2 * a * y + a + b
+
+                continue
+
+            if d > 0:
+                buf = 2 * d - 2 * b * x - b
+                y -= 1
+
+                if buf > 0:
+                    d = d - 2 * y * a + a
+                else:
+                    x += 1
+                    d = d + 2 * x * b - 2 * y * a + a + b
+
+                continue
+
+            if d == 0.0:
+                x += 1
+                y -= 1
+                d = d + 2 * x * b - 2 * y * a + a + b
+
+    def ellipse_middle(self, win, cx, cy, a, b):
+        x = 0  
+        y = b
+        p = b * b - a * a * b + 0.25 * a * a
+        while 2 * (b ** 2) * x < 2 * a * a * y:
+            win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy + y, win.pen.color().rgb())
+
+            x += 1
+
+            if p < 0:
+                p += 2 * b * b * x + b * b
+            else:
+                y -= 1
+                p += 2 * b * b * x - 2 * a * a * y + b * b
+
+        p = b * b * (x + 0.5) * (x + 0.5) + a * a * (y - 1) * (y - 1) - a * a * b * b
+
+        while y >= 0:
+            win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy + y, win.pen.color().rgb())
+
+            y -= 1
+
+            if p > 0:
+                p -= 2 * a * a * y + a * a
+            else:
+                x += 1
+                p += 2 * b * b * x - 2 * a * a * y + a * a
 
 
 
