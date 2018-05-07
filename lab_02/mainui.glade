@@ -261,19 +261,6 @@
             </child>
             <child>
               <object class="GtkButton">
-                <property name="label" translatable="yes">add</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="add_point_on_click_button" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="top_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton">
                 <property name="label" translatable="yes">clean</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -283,6 +270,19 @@
               </object>
               <packing>
                 <property name="left_attach">1</property>
+                <property name="top_attach">14</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">add</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="add_point_on_click_button" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
                 <property name="top_attach">14</property>
               </packing>
             </child>
