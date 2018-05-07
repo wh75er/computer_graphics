@@ -34,6 +34,7 @@ class Window(QtWidgets.QMainWindow):
         self.amount_input.returnPressed.connect(lambda: self.get_amount(self))
         self.step_input.returnPressed.connect(lambda: self.get_step(self))
         self.alg_box.currentIndexChanged.connect(lambda: self.get_algorithm(self))
+        self.clean_button.clicked.connect(lambda: self.canvas_clean(self))
         
         
 
@@ -48,7 +49,6 @@ class Window(QtWidgets.QMainWindow):
 
         if win.circle.isChecked():
             for i in range(d, d * c + d, d):
-
                 if current_alg == "canonical equation":
                     self.circle_canon(win, x, y, i)
                 if current_alg == "parametric equation":
@@ -61,11 +61,24 @@ class Window(QtWidgets.QMainWindow):
                     is_standart = True
                     win.scene.addEllipse(x - i, y - i, i * 2, i * 2, win.pen)
 
+        if win.ellipse.isChecked():
+            print("+\n")
+            for i in range(d, d * c + d, d):
+                if current_alg == "canonical equation":
+                    self.ellipse_canon(win, x, y, i * 2, i)
+                if current_alg == "standart":
+                    is_standart = True
+                    win.scene.addEllipse(x - i * 2, y - i, i * 4, i * 2, win.pen)
+
         if not is_standart:
             pix = QPixmap(520, 520)
             pix.convertFromImage(win.image)
             win.scene.addPixmap(pix)
         
+    def canvas_clean(self, win):
+        win.image.fill(self.bg_color)
+        win.scene.clear()
+
 
 
     def get_bg_color(self, win):
@@ -113,6 +126,7 @@ class Window(QtWidgets.QMainWindow):
         self.current_alg = win.alg_box.currentText()
         print(self.current_alg)
 
+        
 
     def circle_canon(self, win, cx, cy, r):
         for x in range(0, r + 1, 1):
@@ -129,7 +143,6 @@ class Window(QtWidgets.QMainWindow):
             win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
             win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
             win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
-
 
     def circle_param(self, win, cx, cy, r):
         l = round(pi * r / 2 )
@@ -205,6 +218,24 @@ class Window(QtWidgets.QMainWindow):
 
             if x > y:
                 break
+
+# -----------------------------------------------------------------------
+
+    def ellipse_canon(self, win, cx, cy, a, b):
+        for x in range(0, a + 1, 1):
+            y = round(b * sqrt(1.0 - x ** 2 / a / a))
+            win.image.setPixel(cx + x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
+
+        for y in range(0, b + 1, 1):
+            x = round(a * sqrt(1.0 - y ** 2 / b / b))
+            win.image.setPixel(cx + x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
+            win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
+
 
 
 
