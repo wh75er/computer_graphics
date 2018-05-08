@@ -153,6 +153,7 @@ class Window(QtWidgets.QMainWindow):
     def circle_canon(self, win, cx, cy, r):
         for x in range(0, r + 1, 1):
             y = round(sqrt(r ** 2 - x ** 2))
+
             win.image.setPixel(cx + x, cy + y, win.pen.color().rgb())
             win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
             win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
@@ -311,8 +312,13 @@ class Window(QtWidgets.QMainWindow):
     def ellipse_middle(self, win, cx, cy, a, b):
         x = 0  
         y = b
-        p = b * b - a * a * b + 0.25 * a * a
-        while 2 * (b ** 2) * x < 2 * a * a * y:
+        p = b**2 + (a**2*(1-4*b) - 2)/4
+        dp_e = 3*b**2
+        d2p_e = 2*b**2
+        dp_se = dp_e - 2*a**2*(b - 1)
+        d2p_se = d2p_e + 2*a**2
+
+        while dp_se < (2*a**2 + 3*b**2):
             win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
             win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
             win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
@@ -321,14 +327,21 @@ class Window(QtWidgets.QMainWindow):
             x += 1
 
             if p < 0:
-                p += 2 * b * b * x + b * b
+                p += dp_e
+                dp_e += d2p_e
+                dp_se += d2p_e
             else:
                 y -= 1
-                p += 2 * b * b * x - 2 * a * a * y + b * b
+                p += dp_se
+                dp_e += d2p_e
+                dp_se += d2p_se
 
-        p = b * b * (x + 0.5) * (x + 0.5) + a * a * (y - 1) * (y - 1) - a * a * b * b
+        p -= (a**2*(4*y - 3) + b**2*(4*x+3) + 2)/4
+        dp_s = a**2*(3-2*y)
+        dp_se = 2*b**2 + 3*a**2
+        d2p_s = 2*a**2
 
-        while y >= 0:
+        while y > 0:
             win.image.setPixel(cx - x, cy + y, win.pen.color().rgb())
             win.image.setPixel(cx + x, cy - y, win.pen.color().rgb())
             win.image.setPixel(cx - x, cy - y, win.pen.color().rgb())
@@ -337,10 +350,14 @@ class Window(QtWidgets.QMainWindow):
             y -= 1
 
             if p > 0:
-                p -= 2 * a * a * y + a * a
+                p += dp_s
+                dp_s += d2p_s
+                dp_se += d2p_s
             else:
                 x += 1
-                p += 2 * b * b * x - 2 * a * a * y + a * a
+                p += dp_se
+                dp_s += d2p_s
+                dp_se += d2p_se
 
 
 
