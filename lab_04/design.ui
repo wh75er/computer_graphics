@@ -77,7 +77,7 @@
      <string>Points on canvas</string>
     </property>
    </widget>
-   <widget class="QTableWidget" name="point_list">
+   <widget class="QTableWidget" name="table">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -109,7 +109,7 @@
      </property>
     </column>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>30</x>
