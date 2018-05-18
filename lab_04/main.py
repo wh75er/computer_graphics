@@ -28,6 +28,7 @@ class Window(QtWidgets.QMainWindow):
         self.connect_button.clicked.connect(lambda: self.lock_on_click_button(self))
         self.add_point_button.clicked.connect(lambda: self.add_point_on_click_button(self))
         self.clean_button.clicked.connect(lambda: self.clean_on_click_button(self))
+        self.draw_button.clicked.connect(lambda: self.draw_on_click_button(self))
 
         self.scene.installEventFilter(self)
   
@@ -91,6 +92,84 @@ class Window(QtWidgets.QMainWindow):
         self.table.setRowCount(0)
         self.edges = []
         self.image.fill(white)
+
+    def get_line_value(self, edge):
+        point1 = [edge[0], edge[1]]
+        point2 = [edge[2], edge[3]]
+
+        dy = point2[1] - point1[1]
+        dx = point2[0] - point1[0]
+
+        left_border = point2[0]
+        right_border = point1[0]
+        start_y = point2[1]
+
+        if min(point1[0], point2[0]) == point1[0]:
+            left_border = point1[0]
+            right_border= point2[0]
+            start_y = point1[1]
+
+        if not dx:
+            return 0, 0, 0, 0
+
+        tg = dy/dx
+
+        print(left_border, right_border, start_y, tg)
+        
+        return left_border, right_border, start_y, tg
+
+    def set_pipeline(self, edges):
+        min_x = edges[0][0]
+        max_x = edges[0][0]
+        pipe = min_x
+
+        for i in edges:
+            if i[0] < min_x:
+                min_x = i[0]
+            if i[2] < min_x:
+                min_x = i[2]
+            if i[0] > max_x:
+                max_x = i[0]
+            if i[2] > max_x:
+                max_x = i[2]
+
+        mid = min_x + (max_x - min_x)//2
+        l = mid - min_x
+
+        for i in edges:
+            if abs(mid - i[0]) < l:
+                l = abs(mid - i[0])
+                pipe = i[0]
+            if abs(mid - i[2]) < l:
+                l = abs(mid - i[2])
+                pipe = i[2]
+
+        return pipe
+
+    def draw_on_click_button(self, win):
+        if not self.edges:
+            return
+
+        pix = QPixmap()
+        p = QPainter()
+        p.begin(win.image)
+        p.setPen(QPen(black))
+
+        self.scene.clear()
+        pipe = self.set_pipeline(self.edges)
+        self.scene.addLine(pipe, 0, pipe, 520)
+
+        for i in self.edges:
+            lb, rb, sy, tg = self.get_line_value(i)
+            for j in range(int(lb), int(rb+1)):
+                p.drawPoint(j, sy)
+                print(j, sy)
+                sy += tg
+
+        pix.convertFromImage(win.image)
+        win.scene.addPixmap(pix)
+        p.end()
+        
 
 
 
