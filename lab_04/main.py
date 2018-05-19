@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtGui import QPen, QPainter, QColor, QBrush, QImage, QPixmap, QRgba64
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint,QCoreApplication, QEventLoop, QPoint
 from PyQt5.QtWidgets import QTableWidgetItem
 from math import sqrt, pi, cos, sin
 
@@ -93,7 +93,7 @@ class Window(QtWidgets.QMainWindow):
         self.edges = []
         self.image.fill(white)
 
-    def get_line_value(self, edge):
+    def get_line_values(self, edge):
         point1 = [edge[0], edge[1]]
         point2 = [edge[2], edge[3]]
 
@@ -103,20 +103,20 @@ class Window(QtWidgets.QMainWindow):
         left_border = point2[0]
         right_border = point1[0]
         start_y = point2[1]
+        end_y = point1[1]
 
-        if min(point1[0], point2[0]) == point1[0]:
+        if min(point1[1], point2[1]) == point1[1]:
             left_border = point1[0]
             right_border= point2[0]
             start_y = point1[1]
+            end_y = point2[1]
 
-        if not dx:
-            return 0, 0, 0, 0
+        tg = 1
 
-        tg = dy/dx
+        if dx:
+            tg = dy/dx
 
-        print(left_border, right_border, start_y, tg)
-        
-        return left_border, right_border, start_y, tg
+        return left_border, right_border, start_y, end_y, tg
 
     def set_pipeline(self, edges):
         min_x = edges[0][0]
@@ -146,31 +146,85 @@ class Window(QtWidgets.QMainWindow):
 
         return pipe
 
+    def fill(self, win, pix, p, x, y, pipe):
+        k = int(x)
+        if k != pipe:
+            dk = (pipe - k)/abs(pipe - k)
+        while k != pipe:
+            col = QColor(win.image.pixel(int(k), int(y)))
+            if col == white:
+                p.setPen(QPen(black))
+            else:
+                p.setPen(QPen(white))
+            p.drawPoint(int(k), int(y))
+
+            k+= dk
+        if self.lazy_draw.isChecked():
+            self.delay()
+            pix.convertFromImage(win.image)
+            win.scene.addPixmap(pix)
+
     def draw_on_click_button(self, win):
-        if not self.edges:
+        if len(self.edges) < 2:
             return
 
         pix = QPixmap()
         p = QPainter()
         p.begin(win.image)
-        p.setPen(QPen(black))
 
         self.scene.clear()
         pipe = self.set_pipeline(self.edges)
         self.scene.addLine(pipe, 0, pipe, 520)
 
         for i in self.edges:
-            lb, rb, sy, tg = self.get_line_value(i)
-            for j in range(int(lb), int(rb+1)):
-                p.drawPoint(j, sy)
-                print(j, sy)
-                sy += tg
+            lb, rb, sy, ey, tg = self.get_line_values(i)
+            
+            l = max(abs(lb - rb), abs(sy - ey))
+            x = lb
+            y = sy
+            dx = (rb - lb)/l
+            dy = (ey - sy)/l 
+            prevY = None
+            for i in range(int(l)):
+                p.setPen(QPen(black))
 
-        pix.convertFromImage(win.image)
-        win.scene.addPixmap(pix)
+                if sy == ey or (prevY != None and int(y) == prevY):
+                    prevY = int(y)
+                    x+= dx
+                    y+= dy
+                    continue
+                self.fill(win, pix, p, x, y, pipe)
+                prevY = int(y)
+
+                
+                x+= dx
+                y+= dy
+                
+
+
+
+
+        """if self.lazy_draw.isChecked():
+            self.delay()
+            pix.convertFromImage(win.image)
+            win.scene.addPixmap(pix)        
+
+                    col = QColor(win.image.pixel(k, y))
+                    if col == white:
+                        p.setPen(QPen(black))
+                    else:
+                        p.setPen(QPen(white))
+                    p.drawPoint(k, y)
+                    """
+
+        if not self.lazy_draw.isChecked():
+            pix.convertFromImage(win.image)
+            win.scene.addPixmap(pix)
         p.end()
-        
 
+
+    def delay(self):
+        QtWidgets.QApplication.processEvents(QEventLoop.AllEvents, 1)
 
 
 
