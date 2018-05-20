@@ -53,7 +53,6 @@ class Window(QtWidgets.QMainWindow):
             self.table.setItem(i, 0, item_x)
             self.table.setItem(i, 1, item_y)
             return
-        print(point.x(), point.y())
         item_x = QTableWidgetItem("{0}".format(point.x()))
         item_y = QTableWidgetItem("{0}".format(point.y()))
         self.table.insertRow(self.table.rowCount())
@@ -65,13 +64,11 @@ class Window(QtWidgets.QMainWindow):
         self.scene.addLine(point.x(), point.y(), self.prev.x(), self.prev.y(), self.pen)
 
         self.prev = point
-        print(self.edges)
 
 
     def lock_on_click_button(self, win):
         i = len(self.edges)
         if i > 1 and self.lock != self.prev:
-            print("ok", self.lock, self.prev)
             self.edges.append([self.prev.x(), self.prev.y(), self.lock.x(), self.lock.y()])
             self.scene.addLine(self.prev.x(), self.prev.y(), self.lock.x(), self.lock.y())
             self.lock = None
