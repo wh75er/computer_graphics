@@ -169,7 +169,7 @@ class Window(QtWidgets.QMainWindow):
         p = QPainter()
         p.begin(win.image)
 
-        self.scene.clear()
+        #self.scene.clear()
         pipe = self.set_pipeline(self.edges)
         self.scene.addLine(pipe, 0, pipe, 520)
 
@@ -185,7 +185,7 @@ class Window(QtWidgets.QMainWindow):
             for i in range(int(l)):
                 p.setPen(QPen(black))
 
-                if sy == ey or (prevY != None and int(y) == prevY):
+                if sy == ey or int(y) == prevY:
                     prevY = int(y)
                     x+= dx
                     y+= dy
