@@ -172,7 +172,7 @@ class Window(QtWidgets.QMainWindow):
                 else:
 
 
-                    if(t1|t1 == 0):
+                    if(t1|t1 == 0):											# check if first point inside zone
                         draw_point1 = p1
                         q = p2
 
@@ -184,7 +184,7 @@ class Window(QtWidgets.QMainWindow):
                         print("The line visibility is ", visible)
 
 
-                    elif(t2|t2 == 0):
+                    elif(t2|t2 == 0):										# check if second pointn inside zone
                         draw_point1 = p2
                         q = p1
 
@@ -195,11 +195,14 @@ class Window(QtWidgets.QMainWindow):
 
                         print("The line visibility is ", visible)
 
-                    else:
+                    else:													# other situations
+                        print("+++")
                         q = p1
                         draw_point1 = self.find_crossings(p1, p2, q, xl, xr, ya, yb)
+                        print(draw_point1)
                         q = p2
                         draw_point2 = self.find_crossings(p1, p2, q, xl, xr, ya, yb)
+                        print(draw_point2)
 
                         if not draw_point1 or not draw_point2:
                             visible = False
@@ -212,28 +215,32 @@ class Window(QtWidgets.QMainWindow):
             print(line)
 
     def find_crossings(self, p1, p2, q, xl, xr, ya, yb):
-        draw_point2 = None
+        draw_point = None
         if p1.x() != p2.x():
             m = (p2.y()-p1.y())/(p2.x()-p1.x())
             if q.x() < xl:
                 y_crossing = m*(xl - q.x())+q.y()
+                print(y_crossing)
                 if y_crossing < ya and y_crossing > yb:
-                    draw_point2 = QPointF(xl, y_crossing)
-            elif q.x() > xr:
+                    draw_point = QPointF(xl, y_crossing)
+            if q.x() > xr:
                 y_crossing = m*(xr - q.x())+q.y()
+                print("2: ", y_crossing)
                 if y_crossing < ya and y_crossing > yb:
-                    draw_point2 = QPointF(xr, y_crossing)
-            elif m:
+                    draw_point = QPointF(xr, y_crossing)
+            if m:
                 if q.y() > ya:
                     x_crossing = 1/m*(ya - q.y())+q.x()
+                    print(x_crossing)
                     if x_crossing < xr and x_crossing > xl:
-                        draw_point2 = QPointF(x_crossing, ya)
-                elif q.y() < yb:
+                        draw_point = QPointF(x_crossing, ya)
+                if q.y() < yb:
                     x_crossing = 1/m*(yb - q.y())+q.x()
+                    print("2: ", x_crossing)
                     if x_crossing < xr and x_crossing > xl:
-                        draw_point2 = QPointF(x_crossing, yb)
+                        draw_point = QPointF(x_crossing, yb)
 
-        return draw_point2
+        return draw_point
 
 
     def get_codes(self, x1, y1, x2, y2, xl, xr, ya, yb):
