@@ -8,6 +8,7 @@ from math import sqrt, pi, cos, sin
 
 black = Qt.black
 blue = Qt.blue
+red = Qt.red
 white = Qt.white
 
 
@@ -30,6 +31,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.clear.clicked.connect(lambda: self.clean_on_click_button(self))
         self.line.clicked.connect(lambda: self.add_line_mode(self))
+        self.line_2.clicked.connect(lambda: self.add_par_line(self))
         self.paint.clicked.connect(lambda: self.paint_on_click_button(self))
         self.cutter.clicked.connect(lambda: self.add_cutter_mode(self))
 
@@ -60,9 +62,11 @@ class Window(QtWidgets.QMainWindow):
             line.append(self.prev_point)
             line.append(point)
             if line not in self.lines:
+                self.pen.setColor(blue)
                 self.add_row(line)
                 self.lines.append(line)
                 self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+                self.pen.setColor(black)
         else:
             self.prev_point = point;
 
@@ -103,11 +107,12 @@ class Window(QtWidgets.QMainWindow):
             print("Check your input data to continue...")
             return
 
-        self.pen.setColor(blue)
+        self.pen.setColor(red)
         lines_to_fill = self.make_cut()
-        self.pen.setColor(black)
+        self.pen.setColor(blue)
 
     def clean_on_click_button(self, win):
+        self.line_2.setEnabled(False)
         self.scene.clear()
         self.table.clear()
         self.lines = []
@@ -118,12 +123,63 @@ class Window(QtWidgets.QMainWindow):
         for i in range(r, -1, -1):
             self.table.removeRow(i)
 
+    def add_par_line(self, win):
+        if not self.cut:
+            return
+        xl = self.cut[0].x()
+        xr = self.cut[1].x()
+        ya = self.cut[0].y()
+        yb = self.cut[1].y()
+        xl, xr = min(xl, xr), max(xl, xr)
+        ya, yb = max(ya, yb), min(ya, yb)
+        self.pen.setColor(blue)
+
+        point1 = QPoint(xl + abs(xr-xl)/10, ya)
+        point2 = QPoint(xr - abs(xr-xl)/10, ya)
+        line = []
+        line.append(point1)
+        line.append(point2)
+        self.add_row(line)
+        self.lines.append(line)
+        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+
+        point1 = QPoint(xl + abs(xr-xl)/10, yb)
+        point2 = QPoint(xr - abs(xr-xl)/10, yb)
+        line = []
+        line.append(point1)
+        line.append(point2)
+        self.add_row(line)
+        self.lines.append(line)
+        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+
+        point1 = QPoint(xl, ya - abs(ya-yb)/10)
+        point2 = QPoint(xl, yb + abs(ya-yb)/10)
+        line = []
+        line.append(point1)
+        line.append(point2)
+        self.add_row(line)
+        self.lines.append(line)
+        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+
+        point1 = QPoint(xr, ya - abs(ya-yb)/10)
+        point2 = QPoint(xr, yb + abs(ya-yb)/10)
+        line = []
+        line.append(point1)
+        line.append(point2)
+        self.add_row(line)
+        self.lines.append(line)
+        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+
+        self.pen.setColor(black)
+
 
 #-----------------   methods   ------------------------------------
 
 
     def button_mode_set(self):
         if self.mode == None:
+            if self.cut:
+                self.line_2.setEnabled(True)
             self.clear.setEnabled(True)
             self.paint.setEnabled(True)
             self.cutter.setEnabled(True)
@@ -132,10 +188,12 @@ class Window(QtWidgets.QMainWindow):
             self.clear.setEnabled(False)
             self.paint.setEnabled(False)
             self.cutter.setEnabled(False)
+            self.line_2.setEnabled(False)
         if self.mode == "cutter_mode":
             self.clear.setEnabled(False)
             self.paint.setEnabled(False)
             self.line.setEnabled(False)
+            self.line_2.setEnabled(False)
 
     def add_row(self, line):
         self.table.insertRow(self.table.rowCount())
