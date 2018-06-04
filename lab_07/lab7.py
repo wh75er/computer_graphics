@@ -118,6 +118,7 @@ class Window(QtWidgets.QMainWindow):
         self.lines = []
         self.cut = []
         self.image.fill(white)
+        self.pen.setColor(black)
 
         r = self.table.rowCount()
         for i in range(r, -1, -1):
@@ -139,36 +140,40 @@ class Window(QtWidgets.QMainWindow):
         line = []
         line.append(point1)
         line.append(point2)
-        self.add_row(line)
-        self.lines.append(line)
-        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+        if line not in self.lines:
+            self.add_row(line)
+            self.lines.append(line)
+            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
 
         point1 = QPoint(xl + abs(xr-xl)/10, yb)
         point2 = QPoint(xr - abs(xr-xl)/10, yb)
         line = []
         line.append(point1)
         line.append(point2)
-        self.add_row(line)
-        self.lines.append(line)
-        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+        if line not in self.lines:
+            self.add_row(line)
+            self.lines.append(line)
+            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
 
         point1 = QPoint(xl, ya - abs(ya-yb)/10)
         point2 = QPoint(xl, yb + abs(ya-yb)/10)
         line = []
         line.append(point1)
         line.append(point2)
-        self.add_row(line)
-        self.lines.append(line)
-        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+        if line not in self.lines:
+            self.add_row(line)
+            self.lines.append(line)
+            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
 
         point1 = QPoint(xr, ya - abs(ya-yb)/10)
         point2 = QPoint(xr, yb + abs(ya-yb)/10)
         line = []
         line.append(point1)
         line.append(point2)
-        self.add_row(line)
-        self.lines.append(line)
-        self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+        if line not in self.lines:
+            self.add_row(line)
+            self.lines.append(line)
+            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
 
         self.pen.setColor(black)
 
@@ -219,7 +224,6 @@ class Window(QtWidgets.QMainWindow):
             visible = True
             draw_point1 = None;
             draw_point2 = None;
-            i = 0
             m = 10**30
             if(t1|t1 == 0 and t2|t2 == 0):
                 draw_point1 = p1
