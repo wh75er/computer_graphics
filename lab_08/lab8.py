@@ -27,6 +27,8 @@ class Window(QtWidgets.QMainWindow):
         self.mode = None;
         self.lock = None;
 
+        self.line_2.setEnabled(False)
+
         self.click_check = False;
         self.start_point = None;
         self.prev_point = None;
@@ -124,10 +126,10 @@ class Window(QtWidgets.QMainWindow):
     def paint_on_click_button(self, win):
         if not self.cut or not self.lines:
             print("Check your input data to continue...")
-            #return
+            return
 
         self.pen.setColor(red)
-        lines_to_fill = self.make_cut()
+        self.make_cut()
         self.pen.setColor(blue)
 
     def clean_on_click_button(self, win):
@@ -141,7 +143,28 @@ class Window(QtWidgets.QMainWindow):
         self.table_clean(self.table_lines)
 
     def add_par_line(self, win):
-        print("parrallel lines")
+        if not self.cut:
+            return;
+
+        self.pen.setColor(blue)
+
+        point1 = QPoint(self.cut[0][0].x() - 10, self.cut[0][0].y() - 10)
+        point2 = QPoint(self.cut[0][1].x() - 10, self.cut[0][1].y() - 10)
+        line = [point1, point2]
+        if line not in self.lines:
+            self.add_row(line, self.table_lines)
+            self.lines.append(line)
+            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+
+        point1 = QPoint(self.cut[0][0].x() + 10, self.cut[0][0].y() + 10)
+        point2 = QPoint(self.cut[0][1].x() + 10, self.cut[0][1].y() + 10)
+        line = [point1, point2]
+        if line not in self.lines:
+            self.add_row(line, self.table_lines)
+            self.lines.append(line)
+            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
+
+        self.pen.setColor(black)
 
 
 #-----------------   methods   ------------------------------------
@@ -267,7 +290,7 @@ class Window(QtWidgets.QMainWindow):
                         return draw_point1, draw_point2
             else:
                 if w_scalar < 0:
-                    return;
+                    return draw_point1, draw_point2;
                 elif w_scalar > 0:
                     break;
 
