@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Отсечение прямоугольным отсекателем</string>
+   <string>Отсечение отрезков выпуклым отсекателем</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QGraphicsView" name="view">
@@ -24,30 +24,30 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTableWidget" name="table">
+   <widget class="QTableWidget" name="table_cut">
     <property name="geometry">
      <rect>
       <x>590</x>
       <y>10</y>
       <width>211</width>
-      <height>391</height>
+      <height>171</height>
      </rect>
     </property>
     <column>
      <property name="text">
-      <string>НАЧАЛО</string>
+      <string>X</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>КОНЕЦ</string>
+      <string>Y</string>
      </property>
     </column>
    </widget>
    <widget class="QPushButton" name="paint">
     <property name="geometry">
      <rect>
-      <x>630</x>
+      <x>620</x>
       <y>560</y>
       <width>113</width>
       <height>32</height>
@@ -57,10 +57,23 @@
      <string>Отсечь</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="clear">
+   <widget class="QPushButton" name="_lock">
     <property name="geometry">
      <rect>
-      <x>630</x>
+      <x>620</x>
+      <y>500</y>
+      <width>113</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Замкнуть</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="clean">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
       <y>530</y>
       <width>113</width>
       <height>32</height>
@@ -74,7 +87,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>460</y>
+      <y>430</y>
       <width>211</width>
       <height>32</height>
      </rect>
@@ -87,7 +100,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>420</y>
+      <y>390</y>
       <width>211</width>
       <height>32</height>
      </rect>
@@ -96,23 +109,37 @@
      <string>Ввести отсекатель</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="line_2">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
+   <widget class="QTableWidget" name="table_lines">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>490</y>
+      <x>590</x>
+      <y>190</y>
       <width>211</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>НАЧАЛО </string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>КОНЕЦ</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QPushButton" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>470</y>
+      <width>231</width>
       <height>32</height>
      </rect>
     </property>
     <property name="text">
-     <string>Параллельные прямые</string>
-    </property>
-    <property name="checkable">
-     <bool>false</bool>
+     <string>Добавить параллельный отрезок</string>
     </property>
    </widget>
   </widget>
