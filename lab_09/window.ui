@@ -83,7 +83,7 @@
      <string>Очистить</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="line">
+   <widget class="QPushButton" name="_polygon">
     <property name="geometry">
      <rect>
       <x>580</x>
@@ -109,7 +109,7 @@
      <string>Ввести отсекатель</string>
     </property>
    </widget>
-   <widget class="QTableWidget" name="table_lines">
+   <widget class="QTableWidget" name="table_polygon">
     <property name="geometry">
      <rect>
       <x>590</x>

@@ -22,7 +22,7 @@ class Window(QtWidgets.QMainWindow):
         self.image = QImage(520, 520, QImage.Format_ARGB32_Premultiplied)
         self.pen = QPen(black)
 
-        self.lines = []
+        self.polygon = []
         self.cut = []
         self.mode = None;
         self.lock = None;
@@ -34,7 +34,7 @@ class Window(QtWidgets.QMainWindow):
         self.prev_point = None;
 
         self.clean.clicked.connect(lambda: self.clean_on_click_button(self))
-        self.line.clicked.connect(lambda: self.add_line_mode(self))
+        self._polygon.clicked.connect(lambda: self.add_line_mode(self))
         self.line_2.clicked.connect(lambda: self.add_par_line(self))
         self._lock.clicked.connect(lambda: self.lock_on_click_button(self))
         self.paint.clicked.connect(lambda: self.paint_on_click_button(self))
@@ -62,21 +62,20 @@ class Window(QtWidgets.QMainWindow):
     def add_line(self, point):
         print("line coords : ", point.x(), point.y());
 
-        if self.click_check:
-            self.lock = None;
+        if self.lock:
             line = []
             line.append(self.prev_point)
             line.append(point)
-            if line not in self.lines:
+            if line not in self.polygon:
                 self.pen.setColor(blue)
-                self.add_row(line, self.table_lines)
-                self.lines.append(line)
+                self.add_row(line, self.table_polygon)
+                self.polygon.append(line)
                 self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
-                self.pen.setColor(black)
-        else:
             self.prev_point = point;
-
-        self.click_check = False if self.click_check else True
+        else:
+            self.lock = True;
+            self.start_point = point;
+            self.prev_point = point;
 
     def add_cutter(self, point):
         print("cutter coords : ", point.x(), point.y());
@@ -122,9 +121,10 @@ class Window(QtWidgets.QMainWindow):
             self.prev_point = None;
             self.start_point = None;
             self.lock = None;
+            self.pen.setColor(black)
 
     def paint_on_click_button(self, win):
-        if not self.cut or not self.lines:
+        if not self.cut or not self.polygon:
             print("Check your input data to continue...")
             return
 
@@ -135,36 +135,18 @@ class Window(QtWidgets.QMainWindow):
     def clean_on_click_button(self, win):
         self.line_2.setEnabled(False)
         self.scene.clear()
-        self.lines = []
+        self.polygon = []
         self.cut = []
         self.image.fill(white)
         self.pen.setColor(black)
         self.table_clean(self.table_cut)
-        self.table_clean(self.table_lines)
+        self.table_clean(self.table_polygon)
 
     def add_par_line(self, win):
         if not self.cut:
             return;
 
-        self.pen.setColor(blue)
-
-        point1 = QPoint(self.cut[0][0].x() - 10, self.cut[0][0].y() - 10)
-        point2 = QPoint(self.cut[0][1].x() - 10, self.cut[0][1].y() - 10)
-        line = [point1, point2]
-        if line not in self.lines:
-            self.add_row(line, self.table_lines)
-            self.lines.append(line)
-            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
-
-        point1 = QPoint(self.cut[0][0].x() + 10, self.cut[0][0].y() + 10)
-        point2 = QPoint(self.cut[0][1].x() + 10, self.cut[0][1].y() + 10)
-        line = [point1, point2]
-        if line not in self.lines:
-            self.add_row(line, self.table_lines)
-            self.lines.append(line)
-            self.scene.addLine(line[0].x(), line[0].y(), line[1].x(), line[1].y(), self.pen);
-
-        self.pen.setColor(black)
+        print("parrallel lines")
 
 
 #-----------------   methods   ------------------------------------
@@ -230,7 +212,7 @@ class Window(QtWidgets.QMainWindow):
             self.clean.setEnabled(True)
             self.paint.setEnabled(True)
             self.cutter.setEnabled(True)
-            self.line.setEnabled(True)
+            self._polygon.setEnabled(True)
         if self.mode == "line_mode":
             self.clean.setEnabled(False)
             self.paint.setEnabled(False)
@@ -239,7 +221,7 @@ class Window(QtWidgets.QMainWindow):
         if self.mode == "cutter_mode":
             self.clean.setEnabled(False)
             self.paint.setEnabled(False)
-            self.line.setEnabled(False)
+            self._polygon.setEnabled(False)
             self.line_2.setEnabled(False)
 
     def add_row(self, line, table):
@@ -255,52 +237,19 @@ class Window(QtWidgets.QMainWindow):
         print("pain")
         if(not self.checkConvexPolygon()):
             print("The polygon is not convex! Try another one...")
-            return;
-        for i in self.lines:
-            dp1, dp2 = self.cyrus_beck(i, self.cut)
-            if dp1 and dp2:
-                self.pen.setColor(red)
-                self.scene.addLine(dp1.x(), dp1.y(), dp2.x(), dp2.y(), self.pen)
-                self.pen.setColor(black)
+            return
 
-    def cyrus_beck(self, line, edges):
-        draw_point1 = None
-        draw_point2 = None
-        p1 = line[0]
-        p2 = line[1]
-        d = p2-p1
-        tb = 0
-        ta = 1
-        for edge in edges:
-            n = self.normal(self.vec(edge[0], edge[1]))
-            w = p1 - edge[0]
-            w_scalar = self.scalar(w, n)
-            d_scalar = self.scalar(d, n)
-            if d_scalar:
-                t = -(w_scalar/d_scalar)
-                if d_scalar > 0:
-                    if t<=1:
-                        tb = max(t, tb)
-                    else:
-                        return draw_point1, draw_point2
-                if d_scalar < 0:
-                    if t>=0:
-                        ta = min(t, ta)
-                    else:
-                        return draw_point1, draw_point2
-            else:
-                if w_scalar < 0:
-                    return draw_point1, draw_point2;
-                elif w_scalar > 0:
-                    break;
-
-        if tb < ta:
-            draw_point1 = self.param_line(p1, p2, tb)
-            draw_point2 = self.param_line(p1, p2, ta)
-
-        return draw_point1, draw_point2
-
-
+        for i in self.cut:
+            edge = i
+            cutted = []
+            for j in self.polygon:
+                line = j
+                t = crossing(line, edge)
+                if t:
+                    cutted.append(t)
+            s = line[1]
+            if visible(s, edge):
+                cutted.append(s)
 
 
 
