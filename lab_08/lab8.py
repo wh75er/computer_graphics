@@ -194,7 +194,7 @@ class Window(QtWidgets.QMainWindow):
                 sign = None
 
         if sign:
-            return True
+            return sign
         return False
 
     def param_line(self, p1, p2, t):
@@ -205,7 +205,9 @@ class Window(QtWidgets.QMainWindow):
             return False;
         return True;
 
-    def normal(self, vec):
+    def normal(self, vec, norm):
+        if norm < 0:
+            return QPointF(vec.y(), -1*vec.x())
         return QPointF(-1*vec.y(), vec.x())
 
     def vec(self, p1, p2):
@@ -253,17 +255,18 @@ class Window(QtWidgets.QMainWindow):
 
     def make_cut(self):
         print("pain")
-        if(not self.checkConvexPolygon()):
+        norm = self.checkConvexPolygon()
+        if(norm == False):
             print("The polygon is not convex! Try another one...")
             return;
         for i in self.lines:
-            dp1, dp2 = self.cyrus_beck(i, self.cut)
+            dp1, dp2 = self.cyrus_beck(i, self.cut, norm)
             if dp1 and dp2:
                 self.pen.setColor(red)
                 self.scene.addLine(dp1.x(), dp1.y(), dp2.x(), dp2.y(), self.pen)
                 self.pen.setColor(black)
 
-    def cyrus_beck(self, line, edges):
+    def cyrus_beck(self, line, edges, norm):
         draw_point1 = None
         draw_point2 = None
         p1 = line[0]
@@ -272,7 +275,7 @@ class Window(QtWidgets.QMainWindow):
         tb = 0
         ta = 1
         for edge in edges:
-            n = self.normal(self.vec(edge[0], edge[1]))
+            n = self.normal(self.vec(edge[0], edge[1]), norm)
             w = p1 - edge[0]
             w_scalar = self.scalar(w, n)
             d_scalar = self.scalar(d, n)
