@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPen, QPainter, QColor, QBrush, QImage, QPixmap, QRgba64
 from PyQt5.QtCore import Qt, QPoint,QCoreApplication, QEventLoop, QPoint, QPointF
 from PyQt5.QtWidgets import QTableWidgetItem
 from math import sqrt, pi, cos, sin
+import copy
 
 
 black = Qt.black
@@ -53,14 +54,16 @@ class Window(QtWidgets.QMainWindow):
                 self.add_line(event.scenePos())
             if(self.mode == "cutter_mode"):
                 self.add_cutter(event.scenePos())
+            self.add_point_mouse(point)
 
         return False
 
     def add_point_mouse(self, point):
-        print("coords : ", point.x(), point.y());
+        self.coord.setText("X: " + str(point.x()) + "\nY: " + str(point.y()))
+        #print("coords : ", point.x(), point.y());
 
     def add_line(self, point):
-        print("line coords : ", point.x(), point.y());
+        #print("line coords : ", point.x(), point.y());
 
         if self.lock:
             line = []
@@ -78,7 +81,7 @@ class Window(QtWidgets.QMainWindow):
             self.prev_point = point;
 
     def add_cutter(self, point):
-        print("cutter coords : ", point.x(), point.y());
+        #print("cutter coords : ", point.x(), point.y());
 
         if self.lock:
             line = []
@@ -114,14 +117,25 @@ class Window(QtWidgets.QMainWindow):
             line = []
             line.append(self.prev_point)
             line.append(self.start_point)
-            self.add_row(line, self.table_cut)
-            self.cut.append(line)
-            self.scene.addLine(self.prev_point.x(), self.prev_point.y(),
+            if self.mode == "cutter_mode":
+                self.add_row(line, self.table_cut)
+                self.cut.append(line)
+                self.scene.addLine(self.prev_point.x(), self.prev_point.y(),
                                 self.start_point.x(), self.start_point.y(), self.pen);
-            self.prev_point = None;
-            self.start_point = None;
-            self.lock = None;
-            self.pen.setColor(black)
+                self.prev_point = None;
+                self.start_point = None;
+                self.lock = None;
+                self.pen.setColor(black)
+
+            if self.mode == "line_mode":
+                self.add_row(line, self.table_polygon)
+                self.polygon.append(line)
+                self.scene.addLine(self.prev_point.x(), self.prev_point.y(),
+                                self.start_point.x(), self.start_point.y(), self.pen);
+                self.prev_point = None;
+                self.start_point = None;
+                self.lock = None;
+                self.pen.setColor(black)
 
     def paint_on_click_button(self, win):
         if not self.cut or not self.polygon:
@@ -176,7 +190,7 @@ class Window(QtWidgets.QMainWindow):
                 sign = None
 
         if sign:
-            return True
+            return sign
         return False
 
     def param_line(self, p1, p2, t):
@@ -187,8 +201,10 @@ class Window(QtWidgets.QMainWindow):
             return False;
         return True;
 
-    def normal(self, vec):
-        return QPointF(-1*vec.y(), vec.x())
+    def normal(self, vec, norm):
+        if norm > 0:
+            return QPointF(-1*vec.y(), vec.x())
+        return QPointF(vec.y(), -1*vec.x())
 
     def vec(self, p1, p2):
         return p2-p1;
@@ -235,21 +251,99 @@ class Window(QtWidgets.QMainWindow):
 
     def make_cut(self):
         print("pain")
-        if(not self.checkConvexPolygon()):
+        norm = self.checkConvexPolygon()
+        if(norm == False):
             print("The polygon is not convex! Try another one...")
             return
 
-        for i in self.cut:
-            edge = i
+        cut, polygon = self.getPoints(self.cut, self.polygon)
+        polygon = self.sutherland_bodgman(cut, polygon, norm)
+
+        if not polygon:
+            return
+        self.pen.setColor(red)
+        polygon.append(polygon[0])
+        for i in range(len(polygon)):
+            if i == 0:
+                f = polygon[i]
+            else:
+                self.scene.addLine(f.x(), f.y(), polygon[i].x(), polygon[i].y(), self.pen)
+                f = polygon[i]
+        self.pen.setColor(black)
+
+
+
+    def sutherland_bodgman(self, cut, polygon, norm):
+        for i in range(len(cut)-1):
             cutted = []
-            for j in self.polygon:
-                line = j
-                t = crossing(line, edge)
+            for j in range(len(polygon)):
+                if j == 0:
+                    f = polygon[j]
+                else:
+                    t = self.intersection([s, polygon[j]], [cut[i], cut[i+1]], norm)
+                    if t:
+                        cutted.append(t)
+
+                s = polygon[j]
+                if self.visible(s, [cut[i], cut[i+1]], norm):
+                    cutted.append(s)
+            if len(cutted) != 0:
+                t = self.intersection([s, f], [cut[i], cut[i+1]], norm)
                 if t:
                     cutted.append(t)
-            s = line[1]
-            if visible(s, edge):
-                cutted.append(s)
+            polygon = copy.deepcopy(cutted)
+        print(polygon)
+
+        if not len(polygon):
+            return None
+
+        return polygon
+
+
+    def getPoints(self, cut, polygon):
+        newCut = []
+        for i in cut:
+            newCut.append(i[0])
+        newCut.append(cut[0][0])
+
+        newPol = []
+        for i in polygon:
+            newPol.append(i[0])
+
+        return newCut, newPol
+
+    def visible(self, s, edge, norm):
+        v1 = self.vec(edge[0], edge[1])
+        v2 = self.vec(edge[0], s)
+        v = v2.x()*v1.y() - v2.y()*v1.x()
+        if norm * v < 0:
+            return True
+        else:
+            return False
+
+    def intersection(self, line, edge, norm):
+        vis1 = self.visible(line[0], edge, norm)
+        vis2 = self.visible(line[1], edge, norm)
+        if (vis1 and not vis2) or (not vis1 and vis2):
+
+            p1 = line[0]
+            p2 = line[1]
+
+            q1 = edge[0]
+            q2 = edge[1]
+
+            d = (p2.x() - p1.x()) * (q1.y() - q2.y()) - (q1.x() - q2.x()) * (p2.y() - p1.y())
+            w = (q1.x() - p1.x()) * (q1.y() - q2.y()) - (q1.x() - q2.x()) * (q1.y() - p1.y())
+
+            if abs(d) <= 1e-8:
+                return p2
+
+            t = w / d
+
+            return QPointF(p1.x() + (p2.x() - p1.x()) * t, p1.y() + (p2.y() - p1.y()) * t)
+        else:
+            return False
+
 
 
 

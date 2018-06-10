@@ -142,6 +142,19 @@
      <string>Добавить параллельный отрезок</string>
     </property>
    </widget>
+   <widget class="QLabel" name="coord">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
