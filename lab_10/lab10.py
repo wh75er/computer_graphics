@@ -68,7 +68,7 @@ class Window(QtWidgets.QMainWindow):
 #-----------------   buttons   ------------------------------------
 
     def draw_on_click_button(self, win):
-        print("init")
+        self.angle_changed(win)
 
 
 #-----------------   methods   ------------------------------------
@@ -84,6 +84,7 @@ class Window(QtWidgets.QMainWindow):
         pix = QPixmap()
         pix.convertFromImage(self.image)
         self.scene.addPixmap(pix)
+
 
     def floating_horizon(self):
         top = [0 for x in range(1, int(self.scene.width())+1)]
