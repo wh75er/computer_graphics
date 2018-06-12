@@ -36,12 +36,17 @@ class Window(QtWidgets.QMainWindow):
         self.funcs.addItems(["2 * cos(x * z)",
                             "5*sin(x) - cos(z)",
                             "exp(sin(sqrt(x**2 + z**2)))",
-                            "cos(x) * sin(z)"])
+                            "cos(x) * sin(z)",
+                            "cos(x**2 + z**2)",
+                            "(x**2+z**2)**0.5",
+                            "1-abs(x+z)-abs(z-x)"])
 
         self.pen.setColor(green)
         self.image.setColor(0, qRgb(255, 111, 105))
         self.image.setColor(1, qRgb(0, 0, 0))
         self.image.fill(bg_color)
+
+        self.scene.setBackgroundBrush(QBrush(black))
 
         self.x_angle.valueChanged.connect(lambda: self.angle_changed(self))
         self.y_angle.valueChanged.connect(lambda: self.angle_changed(self))
