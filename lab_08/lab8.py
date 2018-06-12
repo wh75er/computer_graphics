@@ -254,7 +254,6 @@ class Window(QtWidgets.QMainWindow):
 
 
     def make_cut(self):
-        print("pain")
         norm = self.checkConvexPolygon()
         if(norm == False):
             print("The polygon is not convex! Try another one...")
@@ -294,8 +293,6 @@ class Window(QtWidgets.QMainWindow):
             else:
                 if w_scalar < 0:
                     return draw_point1, draw_point2;
-                elif w_scalar > 0:
-                    break;
 
         if tb < ta:
             draw_point1 = self.param_line(p1, p2, tb)
