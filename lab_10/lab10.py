@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import QtWidgets, uic, QtCore
-from PyQt5.QtGui import QPen, QPainter, QColor, QBrush, QImage, QPixmap, QRgba64
+from PyQt5.QtGui import QPen, QPainter, QColor, QBrush, QImage, QPixmap, QRgba64, qRgb
 from PyQt5.QtCore import Qt, QPoint,QCoreApplication, QEventLoop, QPoint, QPointF
 from PyQt5.QtWidgets import QTableWidgetItem
 from math import sqrt, pi, cos, sin, exp
@@ -14,6 +14,9 @@ white = Qt.white
 green = Qt.green
 darkGreen = Qt.darkGreen
 
+bg_color = 1
+fg_color = 0
+
 k = 35
 shx = 600 / 2
 shy = 600 / 2
@@ -26,15 +29,19 @@ class Window(QtWidgets.QMainWindow):
         self.setMouseTracking(True)
         self.scene = QtWidgets.QGraphicsScene(0, 0, 600, 600)
         self.view.setScene(self.scene)
-        self.image = QImage(600, 600, QImage.Format_ARGB32_Premultiplied)
+        self.image = QImage(600, 600, QImage.Format_MonoLSB)
+
         self.pen = QPen(black)
 
         self.funcs.addItems(["2 * cos(x * z)",
                             "5*sin(x) - cos(z)",
-                            "exp(sin(sqrt(x**2 + z**2)))"])
+                            "exp(sin(sqrt(x**2 + z**2)))",
+                            "cos(x) * sin(z)"])
 
         self.pen.setColor(green)
-        self.scene.setBackgroundBrush(black)
+        self.image.setColor(0, qRgb(255, 111, 105))
+        self.image.setColor(1, qRgb(0, 0, 0))
+        self.image.fill(bg_color)
 
         self.x_angle.valueChanged.connect(lambda: self.angle_changed(self))
         self.y_angle.valueChanged.connect(lambda: self.angle_changed(self))
@@ -71,7 +78,12 @@ class Window(QtWidgets.QMainWindow):
 
     def angle_changed(self, win):
         self.scene.clear()
+        self.image.fill(bg_color)
         self.floating_horizon()
+
+        pix = QPixmap()
+        pix.convertFromImage(self.image)
+        self.scene.addPixmap(pix)
 
     def floating_horizon(self):
         top = [0 for x in range(1, int(self.scene.width())+1)]
@@ -94,49 +106,16 @@ class Window(QtWidgets.QMainWindow):
             xPrev, yPrev, zT = self.transform(xPrev, yPrev, z)
 
             if xl != -1:
-                top, bottom = horizon(xl, yl, xPrev, yPrev, top, bottom)
+                top, bottom, self.image = horizon(xl, yl, xPrev, yPrev, top, bottom, self.image)
             xl = xPrev
             yl = yPrev
-
-            flagPrev = visible(xPrev, yPrev, top, bottom)
 
             x = xMin
             while x <= xMax:
                 y = self.f(x, z)
                 xCurr, yCurr, zT = self.transform(x, y, z)
 
-                flagCurr = visible(xCurr, yCurr, top, bottom)
-                if flagCurr == flagPrev:
-                    if flagCurr == 1 or flagCurr == -1:
-                        self.scene.addLine(xPrev, yPrev, xCurr, yCurr, self.pen)
-                        top, bottom = horizon(xPrev, yPrev, xCurr, yCurr, top, bottom)
-                else:
-                    if flagCurr == 0:
-                        if flagPrev == 1:
-                            xi, yi = intersection(xPrev, yPrev, xCurr, yCurr, top)
-                        else:
-                            xi, yi = intersection(xPrev, yPrev, xCurr, yCurr, bottom)
-                        self.scene.addLine(xPrev, yPrev, xi, yi, self.pen)
-                        top, bottom = horizon(xPrev, yPrev, xi, yi, top, bottom)
-                    else:
-                        if flagPrev == 0:
-                            xi, yi = intersection(xPrev, yPrev, xCurr, yCurr, top)
-                            self.scene.addLine(xi, yi, xCurr, yCurr, self.pen)
-                            top, bottom = horizon(xi, yi, xCurr, yCurr, top, bottom)
-                        else:
-                            if flagCurr == 1:
-                                xi, yi = intersection(xPrev, yPrev, xCurr, yCurr, bottom)
-                            else:
-                                xi, yi = intersection(xPrev, yPrev, xCurr, yCurr, top)
-                            self.scene.addLine(xPrev, yPrev, xi, yi, self.pen)
-                            top, bottom = horizon(xPrev, yPrev, xi, yi, top, bottom)
-                            if flagCurr == 1:
-                                xi, yi = intersection(xPrev, yPrev, xCurr, yCurr, top)
-                            else:
-                                xi, yi = intersection(xPrev, yPrev, xCurr, yCurr, bottom)
-                            self.scene.addLine(xPrev, yPrev, xi, yi, self.pen)
-                            top, bottom = horizon(xi, yi, xCurr, yCurr, top, bottom)
-                flagPrev = flagCurr
+                top, bottom, self.image = horizon(xPrev, yPrev, xCurr, yCurr, top, bottom, self.image)
                 xPrev = xCurr
                 yPrev = yCurr
 
@@ -146,7 +125,7 @@ class Window(QtWidgets.QMainWindow):
                 xr = xMax
                 yr = self.f(xr, z-zStep)
                 xr, yr, zT = self.transform(xr, yr, z)
-                top, bottom = horizon(xr, yr, xPrev, yPrev, top, bottom)
+                top, bottom, self.image = horizon(xr, yr, xPrev, yPrev, top, bottom, self.image)
 
             z -= zStep
 
@@ -162,31 +141,40 @@ class Window(QtWidgets.QMainWindow):
 
 #-----------------   functions  ------------------------------------\
 
-def horizon(x1, y1, x2, y2, top, bottom):
-    if x2 < x1:
-        x1, y1, x2, y2 = x2, y2, x1, y1
-    if x2-x1 == 0:
-        top[x2] = max(top[x2], max(y1, y2))
-        bottom[x2] = min(bottom[x2], min(y1, y2))
+def horizon(x1, y1, x2, y2, top, bottom, image):
+    if x2<x1:
+        x1, y1, x2, y2 = swap(x1, y1, x2, y2)
+    dx = x2-x1
+    dy = y2-y1
+    if dx>dy:
+        steps = dx
     else:
-        tilt = (y2-y1)/(x2-x1)
-        y = y1
-        for x in range(round(x1), round(x2+1)):
-            y += tilt
-            top[x] = max(top[x], y)
-            bottom[x] = min(bottom[x], y)
-
-    return top, bottom
-
-
-def visible(x, y, top, bottom):
-    if y < top[x] and y > bottom[x]:
-        return 0
-    elif y >= top[x] :
-        return 1
+        steps = dy
+    if steps:
+        xInc = dx/steps
+        yInc = dy/steps
     else:
-        return -1
+        steps = 1
 
+    x = x1
+    y = y1
+    for i in range(steps):
+        xCurr = round(x)
+        yCurr = round(y)
+        if yCurr >= top[xCurr]:
+            top[xCurr] = y
+            image.setPixel(xCurr, yCurr, 0)
+        if yCurr <= bottom[xCurr]:
+            bottom[xCurr] = y
+            image.setPixel(xCurr, yCurr, 0)
+        if steps != 1:
+            x += xInc
+            y += yInc
+
+    return top, bottom, image
+
+def swap(x1, y1, x2, y2):
+    return x2, y2, x1, y1
 
 def sign(a):
     if a < 0:
@@ -196,29 +184,6 @@ def sign(a):
     if a > 0:
         return 1
     return None
-
-def intersection(x1, y1, x2, y2, arr):
-    if x2 < x1:
-        x1, y1, x2, y2 = x2, y2, x1, y1
-    if x2-x1 == 0:
-        xi = x2
-        yi = arr[x2]
-    else:
-        tilt = (y2-y1)/(x2-x1)
-        ySign = sign(y1 + tilt - arr[x1+1])
-        cSign = ySign
-        yi = y1 + tilt
-        xi = x1 + 1
-        while cSign == ySign and xi <= x2:
-            yi += tilt
-            xi += 1
-            cSign = sign(yi - arr[xi])
-        if abs(yi - tilt - arr[xi-1]) <= abs(yi - arr[xi]):
-            yi -= tilt
-            xi -= 1
-    return round(xi), round(yi)
-
-
 
 
 def rotateX(x, y, z, a):
