@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface>
+  <object class="tk.Frame" id="main_frame">
+    <property name="background">#eca694</property>
+    <property name="cursor">center_ptr</property>
+    <property name="height">600</property>
+    <property name="padx">5</property>
+    <property name="pady">5</property>
+    <property name="relief">flat</property>
+    <property name="width">1000</property>
+    <layout>
+      <property name="column">0</property>
+      <property name="propagate">True</property>
+      <property name="row">0</property>
+    </layout>
+    <child>
+      <object class="tk.Button" id="move">
+        <property name="command">move_on_button_click</property>
+        <property name="text" translatable="yes">move</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">79</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">10</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Button" id="quit">
+        <property name="command">quit_on_button_click</property>
+        <property name="foreground">#ff0000</property>
+        <property name="text" translatable="yes">QUIT</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="pady">10</property>
+          <property name="propagate">True</property>
+          <property name="row">20</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Canvas" id="canvas">
+        <property name="height">600</property>
+        <property name="width">600</property>
+        <layout>
+          <property name="column">5</property>
+          <property name="padx">10</property>
+          <property name="pady">10</property>
+          <property name="propagate">True</property>
+          <property name="row">0</property>
+          <property name="rowspan">21</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Label" id="debug">
+        <property name="anchor">w</property>
+        <property name="background">#ffffff</property>
+        <property name="compound">top</property>
+        <property name="cursor">based_arrow_down</property>
+        <property name="height">10</property>
+        <property name="height">10</property>
+        <property name="justify">left</property>
+        <property name="relief">sunken</property>
+        <property name="text" translatable="yes">| Welcome! waiting for commands...
+| kx, ky -- move
+| kx, ky, xc, yc -- scale
+| xc, yc, angle(degr) -- rotate</property>
+        <property name="textvariable">string:_debug_text</property>
+        <property name="width">26</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">16</property>
+          <property name="pady">15</property>
+          <property name="propagate">True</property>
+          <property name="row">19</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Button" id="scale">
+        <property name="command">scale_on_button_click</property>
+        <property name="text" translatable="yes">scale</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">80</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">13</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Button" id="rotation">
+        <property name="command">rotate_on_button_click</property>
+        <property name="text" translatable="yes">rotation</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">71</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">16</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Entry" id="moveIn">
+        <property name="textvariable">string:_input_text_mv</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">27</property>
+          <property name="ipady">4</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">9</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Button" id="back">
+        <property name="command">back_on_button_click</property>
+        <property name="relief">ridge</property>
+        <property name="text" translatable="yes">back</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="pady">20</property>
+          <property name="propagate">True</property>
+          <property name="row">18</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Entry" id="scaleIn">
+        <property name="textvariable">string:_input_text_scl</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">27</property>
+          <property name="ipady">4</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">12</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Entry" id="rotateIn">
+        <property name="textvariable">string:_input_text_rt</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">4</property>
+          <property name="ipadx">27</property>
+          <property name="ipady">4</property>
+          <property name="pady">4</property>
+          <property name="propagate">True</property>
+          <property name="row">15</property>
+        </layout>
+      </object>
+    </child>
+  </object>
+</interface>
